@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { cache } from "react";
 
 export const revalidate = 3600;
 
@@ -10,7 +11,7 @@ interface DailyPiece {
   context: string;
 }
 
-async function getDailyPiece(): Promise<DailyPiece> {
+const getDailyPiece = cache(async (): Promise<DailyPiece> => {
   const today = new Date().toISOString().split("T")[0];
   const client = new Anthropic();
 
@@ -41,8 +42,23 @@ Use today's date as a seed so the same piece shows all day but changes daily. Re
 
   const text =
     message.content[0].type === "text" ? message.content[0].text : "";
-  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/,"").trim();
+  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
   return JSON.parse(cleaned);
+});
+
+export async function generateMetadata() {
+  try {
+    const piece = await getDailyPiece();
+    return {
+      title: `${piece.piece_name} — ${piece.composer}`,
+      description: piece.context,
+    };
+  } catch {
+    return {
+      title: "Daily Classical",
+      description: "A classical piece worth discovering, every day.",
+    };
+  }
 }
 
 export default async function Home() {
@@ -65,7 +81,7 @@ export default async function Home() {
     );
   }
 
-  const embedUrl = `https://www.youtube.com/embed/${piece.youtube_video_id}`;
+  const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${piece.piece_name} ${piece.composer}`)}`;
 
   return (
     <main className="min-h-screen bg-stone-50 text-stone-900 flex flex-col items-center justify-start px-6 py-16">
@@ -79,28 +95,17 @@ export default async function Home() {
           </h1>
         </header>
 
-        <div className="space-y-2">
-          <div className="aspect-video w-full rounded-lg overflow-hidden shadow">
-            <iframe
-              className="w-full h-full"
-              src={embedUrl}
-              title={`${piece.piece_name} — ${piece.composer}`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-          <p className="text-xs text-stone-400 text-right">
-            Video unavailable?{" "}
-            <a
-              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${piece.piece_name} ${piece.composer}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-stone-600"
-            >
-              Search on YouTube →
-            </a>
-          </p>
-        </div>
+        <a
+          href={searchUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 w-full rounded-lg bg-stone-900 text-white px-5 py-4 hover:bg-stone-700 transition-colors"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 shrink-0">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <span className="font-medium">Listen on YouTube</span>
+        </a>
 
         <p className="leading-relaxed text-stone-700">{piece.context}</p>
       </article>

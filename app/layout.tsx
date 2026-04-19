@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Goldberg Variations",
-  description: "Bach's Goldberg Variations, BWV 988",
+  title: "Daily Classical",
+  description: "A classical piece worth discovering, every day.",
 };
 
 export default function RootLayout({
