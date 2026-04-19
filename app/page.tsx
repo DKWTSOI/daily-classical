@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { cache } from "react";
+import YoutubeEmbed from "./YoutubeEmbed";
 
 export const revalidate = 3600;
 
@@ -81,8 +82,6 @@ export default async function Home() {
     );
   }
 
-  const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${piece.piece_name} ${piece.composer}`)}`;
-
   return (
     <main className="min-h-screen bg-stone-50 text-stone-900 flex flex-col items-center justify-start px-6 py-16">
       <article className="max-w-xl w-full space-y-8">
@@ -95,17 +94,11 @@ export default async function Home() {
           </h1>
         </header>
 
-        <a
-          href={searchUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 w-full rounded-lg bg-stone-900 text-white px-5 py-4 hover:bg-stone-700 transition-colors"
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 shrink-0">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-          <span className="font-medium">Listen on YouTube</span>
-        </a>
+        <YoutubeEmbed
+          videoId={piece.youtube_video_id}
+          title={`${piece.piece_name} — ${piece.composer}`}
+          searchQuery={`${piece.piece_name} ${piece.composer}`}
+        />
 
         <p className="leading-relaxed text-stone-700">{piece.context}</p>
       </article>
