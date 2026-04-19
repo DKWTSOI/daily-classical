@@ -15,7 +15,7 @@ async function getDailyPiece(): Promise<DailyPiece> {
   const client = new Anthropic();
 
   const message = await client.messages.create({
-    model: "claude-opus-4-7",
+    model: "claude-haiku-4-5",
     max_tokens: 1024,
     system: [
       {
