@@ -41,7 +41,8 @@ Use today's date as a seed so the same piece shows all day but changes daily. Re
 
   const text =
     message.content[0].type === "text" ? message.content[0].text : "";
-  return JSON.parse(text);
+  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/,"").trim();
+  return JSON.parse(cleaned);
 }
 
 export default async function Home() {
