@@ -8,7 +8,6 @@ interface DailyPiece {
   piece_name: string;
   composer: string;
   year: string | number;
-  youtube_video_id: string;
   context: string;
 }
 
@@ -26,7 +25,6 @@ const getDailyPiece = cache(async (): Promise<DailyPiece> => {
 - piece_name: name of the piece
 - composer: composer's full name
 - year: year of composition (number)
-- youtube_video_id: a real YouTube video ID (11 characters) for a well-known recording of this piece — pick a famous, widely-viewed upload you are confident exists
 - context: 2-3 sentences, warm and curious tone, not academic — write like you are recommending it to a friend
 
 Use today's date as a seed so the same piece shows all day but changes daily. Return only valid JSON, no markdown.`,
@@ -46,6 +44,18 @@ Use today's date as a seed so the same piece shows all day but changes daily. Re
   const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
   return JSON.parse(cleaned);
 });
+
+async function searchYouTube(query: string): Promise<string | null> {
+  const apiKey = process.env.YOUTUBE_API_KEY;
+  if (!apiKey) return null;
+
+  const url = `https://www.googleapis.com/youtube/v3/search?part=id&type=video&maxResults=1&q=${encodeURIComponent(query)}&key=${apiKey}`;
+  const res = await fetch(url, { next: { revalidate: 3600 } });
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  return data.items?.[0]?.id?.videoId ?? null;
+}
 
 export async function generateMetadata() {
   try {
@@ -82,6 +92,8 @@ export default async function Home() {
     );
   }
 
+  const videoId = await searchYouTube(`${piece.piece_name} ${piece.composer}`);
+
   return (
     <main className="min-h-screen bg-stone-50 text-stone-900 flex flex-col items-center justify-start px-6 py-16">
       <article className="max-w-xl w-full space-y-8">
@@ -95,7 +107,7 @@ export default async function Home() {
         </header>
 
         <YoutubeEmbed
-          videoId={piece.youtube_video_id}
+          videoId={videoId}
           title={`${piece.piece_name} — ${piece.composer}`}
           searchQuery={`${piece.piece_name} ${piece.composer}`}
         />

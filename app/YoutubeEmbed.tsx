@@ -3,16 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 
 interface Props {
-  videoId: string;
+  videoId: string | null;
   title: string;
   searchQuery: string;
 }
 
 export default function YoutubeEmbed({ videoId, title, searchQuery }: Props) {
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState(!videoId);
   const playerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!videoId) return;
+
     const tag = document.createElement("script");
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
