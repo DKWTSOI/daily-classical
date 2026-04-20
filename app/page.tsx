@@ -70,7 +70,7 @@ export async function generateMetadata() {
     };
   } catch {
     return {
-      title: "Attune.today",
+      title: "Attuned.today",
       description: "A classical piece worth discovering, every day.",
     };
   }
