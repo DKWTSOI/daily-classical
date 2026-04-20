@@ -9,6 +9,8 @@ interface DailyPiece {
   composer: string;
   year: string | number;
   context: string;
+  what_to_listen_for: string;
+  recommended_recording: string;
 }
 
 const getDailyPiece = cache(async (): Promise<DailyPiece> => {
@@ -26,6 +28,8 @@ const getDailyPiece = cache(async (): Promise<DailyPiece> => {
 - composer: composer's full name
 - year: year of composition (number)
 - context: 2-3 sentences, warm and curious tone, not academic — write like you are recommending it to a friend
+- what_to_listen_for: one specific musical detail to actively notice while listening — a motif, instrument, structural moment, or feeling shift. One sentence, concrete and vivid.
+- recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why
 
 Use today's date as a seed so the same piece shows all day but changes daily. Return only valid JSON, no markdown.`,
         cache_control: { type: "ephemeral" },
@@ -113,6 +117,17 @@ export default async function Home() {
         />
 
         <p className="leading-relaxed text-stone-700">{piece.context}</p>
+
+        <div className="space-y-4 border-t border-stone-200 pt-6">
+          <div className="space-y-1">
+            <p className="text-xs tracking-widest uppercase text-stone-400">What to listen for</p>
+            <p className="leading-relaxed text-stone-700">{piece.what_to_listen_for}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs tracking-widest uppercase text-stone-400">Recommended recording</p>
+            <p className="leading-relaxed text-stone-700">{piece.recommended_recording}</p>
+          </div>
+        </div>
       </article>
     </main>
   );
