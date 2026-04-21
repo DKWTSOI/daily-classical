@@ -121,7 +121,7 @@ export default async function Home() {
     );
   }
 
-  const videoId = await searchYouTube(`${piece.piece_name} ${piece.composer}`);
+  const videoId = await searchYouTube(`${piece.composer} ${piece.piece_name} full performance`);
   const era = getEra(piece.year);
   const today = formatDate(new Date());
 
@@ -159,16 +159,22 @@ export default async function Home() {
               {era}
             </p>
             <h1
-              className="text-5xl leading-tight font-normal"
+              className="text-6xl sm:text-7xl leading-tight font-normal"
               style={{ fontFamily: "var(--font-garamond)", color: "#f0ead8" }}
             >
               {piece.piece_name}
             </h1>
             <p
-              className="text-base tracking-wide"
+              className="text-lg tracking-wide"
               style={{ color: "#a89880", fontFamily: "var(--font-inter)" }}
             >
               {piece.composer} · {piece.year}
+            </p>
+            <p
+              className="text-sm italic"
+              style={{ color: "#6b6b7a", fontFamily: "var(--font-garamond)" }}
+            >
+              {piece.recommended_recording}
             </p>
           </header>
 
@@ -181,7 +187,7 @@ export default async function Home() {
 
           {/* Context */}
           <p
-            className="text-xl leading-relaxed"
+            className="text-2xl leading-relaxed"
             style={{ fontFamily: "var(--font-garamond)", color: "#ddd5c0" }}
           >
             {piece.context}
@@ -200,27 +206,13 @@ export default async function Home() {
                 What to listen for
               </p>
               <p
-                className="text-lg leading-relaxed"
+                className="text-xl leading-relaxed"
                 style={{ fontFamily: "var(--font-garamond)", color: "#ddd5c0" }}
               >
                 {piece.what_to_listen_for}
               </p>
             </div>
 
-            <div className="space-y-2">
-              <p
-                className="text-xs tracking-[0.25em] uppercase"
-                style={{ color: "#8b7355", fontFamily: "var(--font-inter)" }}
-              >
-                Recommended recording
-              </p>
-              <p
-                className="text-lg leading-relaxed"
-                style={{ fontFamily: "var(--font-garamond)", color: "#ddd5c0" }}
-              >
-                {piece.recommended_recording}
-              </p>
-            </div>
           </div>
 
         </article>
