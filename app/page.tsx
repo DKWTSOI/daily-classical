@@ -13,6 +13,24 @@ interface DailyPiece {
   recommended_recording: string;
 }
 
+function getEra(year: string | number): string {
+  const y = Number(year);
+  if (y < 1600) return "Renaissance";
+  if (y < 1750) return "Baroque";
+  if (y < 1820) return "Classical";
+  if (y < 1900) return "Romantic";
+  if (y < 1945) return "Late Romantic · Modern";
+  return "20th Century";
+}
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 const getDailyPiece = cache(async (): Promise<DailyPiece> => {
   const today = new Date().toISOString().split("T")[0];
   const client = new Anthropic();
@@ -95,8 +113,8 @@ export default async function Home() {
 
   if (error || !piece) {
     return (
-      <main className="min-h-screen bg-stone-50 flex items-center justify-center px-6">
-        <p className="text-stone-400 text-sm font-mono max-w-md break-all">
+      <main className="min-h-screen flex items-center justify-center px-6" style={{ background: "#0d0d14" }}>
+        <p className="text-sm font-mono max-w-md break-all" style={{ color: "#6b6b7a" }}>
           Error: {error ?? "unknown"}
         </p>
       </main>
@@ -104,38 +122,120 @@ export default async function Home() {
   }
 
   const videoId = await searchYouTube(`${piece.piece_name} ${piece.composer}`);
+  const era = getEra(piece.year);
+  const today = formatDate(new Date());
 
   return (
-    <main className="min-h-screen bg-stone-50 text-stone-900 flex flex-col items-center justify-start px-6 py-16">
-      <article className="max-w-xl w-full space-y-8">
-        <header className="space-y-1">
-          <p className="text-sm tracking-widest uppercase text-stone-400">
-            {piece.composer} · {piece.year}
-          </p>
-          <h1 className="text-4xl font-serif font-semibold">
-            {piece.piece_name}
-          </h1>
-        </header>
+    <main
+      className="min-h-screen flex flex-col items-center px-6 py-12"
+      style={{ background: "#0d0d14", color: "#f0ead8" }}
+    >
+      <div className="w-full max-w-[680px]">
 
-        <YoutubeEmbed
-          videoId={videoId}
-          title={`${piece.piece_name} — ${piece.composer}`}
-          searchQuery={`${piece.piece_name} ${piece.composer}`}
-        />
-
-        <p className="leading-relaxed text-stone-700">{piece.context}</p>
-
-        <div className="space-y-4 border-t border-stone-200 pt-6">
-          <div className="space-y-1">
-            <p className="text-xs tracking-widest uppercase text-stone-400">What to listen for</p>
-            <p className="leading-relaxed text-stone-700">{piece.what_to_listen_for}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs tracking-widest uppercase text-stone-400">Recommended recording</p>
-            <p className="leading-relaxed text-stone-700">{piece.recommended_recording}</p>
-          </div>
+        {/* Top bar */}
+        <div className="flex justify-between items-center mb-16">
+          <span
+            className="text-xs tracking-[0.2em] uppercase"
+            style={{ color: "#6b6b7a", fontFamily: "var(--font-inter)" }}
+          >
+            {today}
+          </span>
+          <span
+            className="text-xs tracking-[0.2em] uppercase"
+            style={{ color: "#6b6b7a", fontFamily: "var(--font-inter)" }}
+          >
+            Attuned.today
+          </span>
         </div>
-      </article>
+
+        <article className="space-y-10">
+
+          {/* Header */}
+          <header className="space-y-3">
+            <p
+              className="text-xs tracking-[0.25em] uppercase"
+              style={{ color: "#8b7355", fontFamily: "var(--font-inter)" }}
+            >
+              {era}
+            </p>
+            <h1
+              className="text-5xl leading-tight font-normal"
+              style={{ fontFamily: "var(--font-garamond)", color: "#f0ead8" }}
+            >
+              {piece.piece_name}
+            </h1>
+            <p
+              className="text-base tracking-wide"
+              style={{ color: "#a89880", fontFamily: "var(--font-inter)" }}
+            >
+              {piece.composer} · {piece.year}
+            </p>
+          </header>
+
+          {/* Embed */}
+          <YoutubeEmbed
+            videoId={videoId}
+            title={`${piece.piece_name} — ${piece.composer}`}
+            searchQuery={`${piece.piece_name} ${piece.composer}`}
+          />
+
+          {/* Context */}
+          <p
+            className="text-xl leading-relaxed"
+            style={{ fontFamily: "var(--font-garamond)", color: "#ddd5c0" }}
+          >
+            {piece.context}
+          </p>
+
+          {/* Divider sections */}
+          <div
+            className="space-y-8 pt-8"
+            style={{ borderTop: "1px solid #2a2a3a" }}
+          >
+            <div className="space-y-2">
+              <p
+                className="text-xs tracking-[0.25em] uppercase"
+                style={{ color: "#8b7355", fontFamily: "var(--font-inter)" }}
+              >
+                What to listen for
+              </p>
+              <p
+                className="text-lg leading-relaxed"
+                style={{ fontFamily: "var(--font-garamond)", color: "#ddd5c0" }}
+              >
+                {piece.what_to_listen_for}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p
+                className="text-xs tracking-[0.25em] uppercase"
+                style={{ color: "#8b7355", fontFamily: "var(--font-inter)" }}
+              >
+                Recommended recording
+              </p>
+              <p
+                className="text-lg leading-relaxed"
+                style={{ fontFamily: "var(--font-garamond)", color: "#ddd5c0" }}
+              >
+                {piece.recommended_recording}
+              </p>
+            </div>
+          </div>
+
+        </article>
+
+        {/* Footer */}
+        <footer className="mt-20 pb-8">
+          <p
+            className="text-xs tracking-[0.2em] uppercase text-center"
+            style={{ color: "#3a3a4a", fontFamily: "var(--font-inter)" }}
+          >
+            One piece, every day
+          </p>
+        </footer>
+
+      </div>
     </main>
   );
 }

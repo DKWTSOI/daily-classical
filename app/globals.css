@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+@theme {
+  --font-garamond: var(--font-garamond);
+  --font-inter: var(--font-inter);
+}
