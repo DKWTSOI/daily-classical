@@ -27,9 +27,9 @@ Return a JSON object with these exact fields:
 - piece_name: name of the piece (always in original language)
 - composer: composer's full name (always in original language)
 - year: year of composition (number)
-- context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play.${isZh ? " Write in Traditional Chinese as used in Hong Kong." : ""}
-- what_to_listen_for: one specific musical detail to actively notice while listening — a motif, instrument, structural moment, or feeling shift. One sentence, concrete and vivid.${isZh ? " Write in Traditional Chinese as used in Hong Kong." : ""}
-- recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why.${isZh ? " Write in Traditional Chinese as used in Hong Kong." : ""}
+- context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play.${isZh ? " Write in Traditional Chinese (繁體中文) as used in formal written Hong Kong Chinese — 書面語, NOT Cantonese vernacular (廣東話). Use formal written Chinese throughout." : ""}
+- what_to_listen_for: one specific musical detail to actively notice while listening — a motif, instrument, structural moment, or feeling shift. One sentence, concrete and vivid.${isZh ? " Write in Traditional Chinese (繁體中文), 書面語 only." : ""}
+- recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why.${isZh ? " Write in Traditional Chinese (繁體中文), 書面語 only." : ""}
 
 Use today's date as a seed so the same piece shows all day but changes daily. Return only valid JSON, no markdown.`,
         cache_control: { type: "ephemeral" },

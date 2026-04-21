@@ -80,6 +80,7 @@ async function searchYouTube(query: string): Promise<YouTubeResult | null> {
     maxResults: "1",
     videoCategoryId: "10",
     videoEmbeddable: "true",
+    order: "relevance",
     q: query,
     key: apiKey,
   });
@@ -131,7 +132,7 @@ export default async function Home() {
 
   const dateKey = new Date().toISOString().split("T")[0];
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  const yt = await searchYouTube(`${piece.composer} ${piece.piece_name} piano`);
+  const yt = await searchYouTube(`${piece.piece_name} ${piece.composer} classical music full performance`);
   const era = getEra(piece.year);
 
   return (
