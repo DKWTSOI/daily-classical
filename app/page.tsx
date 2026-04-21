@@ -66,14 +66,32 @@ Use today's date as a seed so the same piece shows all day but changes daily. Re
   return JSON.parse(cleaned);
 });
 
-async function searchYouTube(query: string): Promise<string | null> {
+interface YouTubeResult {
+  videoId: string;
+  title: string;
+}
+
+async function searchYouTube(query: string): Promise<YouTubeResult | null> {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) return null;
-  const url = `https://www.googleapis.com/youtube/v3/search?part=id&type=video&maxResults=1&q=${encodeURIComponent(query)}&key=${apiKey}`;
-  const res = await fetch(url, { next: { revalidate: 3600 } });
+  const params = new URLSearchParams({
+    part: "id,snippet",
+    type: "video",
+    maxResults: "1",
+    videoCategoryId: "10",
+    videoEmbeddable: "true",
+    q: query,
+    key: apiKey,
+  });
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`, { next: { revalidate: 3600 } });
   if (!res.ok) return null;
   const data = await res.json();
-  return data.items?.[0]?.id?.videoId ?? null;
+  const item = data.items?.[0];
+  if (!item) return null;
+  return {
+    videoId: item.id.videoId,
+    title: item.snippet.title,
+  };
 }
 
 export async function generateMetadata() {
@@ -113,14 +131,15 @@ export default async function Home() {
 
   const dateKey = new Date().toISOString().split("T")[0];
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  const videoId = await searchYouTube(`${piece.composer} ${piece.piece_name} full performance`);
+  const yt = await searchYouTube(`${piece.composer} ${piece.piece_name} piano`);
   const era = getEra(piece.year);
 
   return (
     <main className="min-h-screen flex flex-col items-center px-6" style={{ paddingTop: 48 }}>
       <PieceDisplay
         initial={piece}
-        videoId={videoId}
+        videoId={yt?.videoId ?? null}
+        videoTitle={yt?.title ?? null}
         today={today}
         dateKey={dateKey}
         era={era}

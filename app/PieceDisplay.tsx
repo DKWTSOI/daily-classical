@@ -15,15 +15,16 @@ interface Piece {
 interface Props {
   initial: Piece;
   videoId: string | null;
-  today: string;       // formatted display date e.g. "20 April 2026"
-  dateKey: string;     // ISO date e.g. "2026-04-20" for API seed
+  videoTitle: string | null;
+  today: string;
+  dateKey: string;
   era: string;
 }
 
 const inter: React.CSSProperties = { fontFamily: "var(--font-inter)" };
 const playfair: React.CSSProperties = { fontFamily: "var(--font-playfair)" };
 
-export default function PieceDisplay({ initial, videoId, today, dateKey, era }: Props) {
+export default function PieceDisplay({ initial, videoId, videoTitle, today, dateKey, era }: Props) {
   const [lang, setLang] = useState<"en" | "zh">("en");
   const [piece, setPiece] = useState<Piece>(initial);
   const [loading, setLoading] = useState(false);
@@ -114,13 +115,18 @@ export default function PieceDisplay({ initial, videoId, today, dateKey, era }: 
         </p>
 
         {/* Embed */}
-        <div style={{ marginBottom: 32 }}>
+        <div style={{ marginBottom: videoTitle ? 8 : 32 }}>
           <YoutubeEmbed
             videoId={videoId}
             title={`${piece.piece_name} — ${piece.composer}`}
             searchQuery={`${piece.piece_name} ${piece.composer}`}
           />
         </div>
+        {videoTitle && (
+          <p style={{ ...inter, fontSize: 11, fontWeight: 300, color: "#b5a48a", marginBottom: 32, lineHeight: 1.4 }}>
+            {videoTitle}
+          </p>
+        )}
 
         {/* Context */}
         <p style={{ ...playfair, fontSize: 16, fontStyle: "normal", lineHeight: 1.75, color: "#2a231a", marginBottom: 36 }}>
