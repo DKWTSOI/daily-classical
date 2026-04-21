@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
 Return a JSON object with exactly these fields:
 - context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play. Write in 書面語 Traditional Chinese.
-- what_to_listen_for: one specific musical detail to actively notice while listening — a motif, instrument, structural moment, or feeling shift. One sentence, concrete and vivid. Write in 書面語 Traditional Chinese.
+- what_to_listen_for: one specific detail to actively notice while listening — focus on structural, emotional, or compositional elements: how a theme develops or transforms, a mood shift, a moment of tension or release, a surprising harmonic turn, or the emotional arc of a passage. Do NOT name specific instruments unless that instrument is absolutely central and unmistakable in the piece. One sentence, concrete and vivid. Write in 書面語 Traditional Chinese.
 - recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why. Write in 書面語 Traditional Chinese.
 
 Return only valid JSON, no markdown.`,

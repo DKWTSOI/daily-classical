@@ -45,7 +45,7 @@ Return a JSON object with these exact fields:
 - composer: composer's full name (always in original language)
 - year: year of composition (number)
 - context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play.
-- what_to_listen_for: one specific musical detail to actively notice while listening — a motif, instrument, structural moment, or feeling shift. One sentence, concrete and vivid.
+- what_to_listen_for: one specific detail to actively notice while listening — focus on structural, emotional, or compositional elements: how a theme develops or transforms, a mood shift, a moment of tension or release, a surprising harmonic turn, or the emotional arc of a passage. Do NOT name specific instruments unless that instrument is absolutely central and unmistakable in the piece (e.g. do not say "listen for the flute" or "notice the harp" unless it is the obvious defining feature). One sentence, concrete and vivid.
 - recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why.
 
 Use today's date as a seed so the same piece shows all day but changes daily. Return only valid JSON, no markdown.`,
