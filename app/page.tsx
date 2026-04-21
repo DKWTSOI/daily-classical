@@ -101,6 +101,9 @@ export async function generateMetadata() {
   }
 }
 
+const inter: React.CSSProperties = { fontFamily: "var(--font-inter)" };
+const playfair: React.CSSProperties = { fontFamily: "var(--font-playfair)" };
+
 export default async function Home() {
   let piece: DailyPiece | null = null;
   let error: string | null = null;
@@ -113,8 +116,8 @@ export default async function Home() {
 
   if (error || !piece) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6" style={{ background: "#0d0d14" }}>
-        <p className="text-sm font-mono max-w-md break-all" style={{ color: "#6b6b7a" }}>
+      <main className="min-h-screen flex items-center justify-center px-6">
+        <p className="text-sm font-mono max-w-md break-all" style={{ color: "#b5a48a" }}>
           Error: {error ?? "unknown"}
         </p>
       </main>
@@ -126,103 +129,73 @@ export default async function Home() {
   const today = formatDate(new Date());
 
   return (
-    <main
-      className="min-h-screen flex flex-col items-center px-6 py-12"
-      style={{ background: "#0d0d14", color: "#f0ead8" }}
-    >
-      <div className="w-full max-w-[680px]">
+    <main className="min-h-screen flex flex-col items-center px-6" style={{ paddingTop: 48 }}>
+      <div className="w-full" style={{ maxWidth: 560 }}>
 
         {/* Top bar */}
-        <div className="flex justify-between items-center mb-16">
-          <span
-            className="text-xs tracking-[0.2em] uppercase"
-            style={{ color: "#6b6b7a", fontFamily: "var(--font-inter)" }}
-          >
+        <div className="flex justify-between items-center" style={{ marginBottom: 52 }}>
+          <span style={{ ...inter, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", fontVariant: "small-caps", color: "#a89880" }}>
             {today}
           </span>
-          <span
-            className="text-xs tracking-[0.2em] uppercase"
-            style={{ color: "#6b6b7a", fontFamily: "var(--font-inter)" }}
-          >
+          <span style={{ ...inter, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", fontVariant: "small-caps", color: "#a89880" }}>
             Attuned.today
           </span>
         </div>
 
-        <article className="space-y-10">
+        <article>
 
-          {/* Header */}
-          <header className="space-y-3">
-            <p
-              className="text-xs tracking-[0.25em] uppercase"
-              style={{ color: "#8b7355", fontFamily: "var(--font-inter)" }}
-            >
-              {era}
-            </p>
-            <h1
-              className="text-6xl sm:text-7xl leading-tight font-normal"
-              style={{ fontFamily: "var(--font-garamond)", color: "#f0ead8" }}
-            >
-              {piece.piece_name}
-            </h1>
-            <p
-              className="text-lg tracking-wide"
-              style={{ color: "#a89880", fontFamily: "var(--font-inter)" }}
-            >
-              {piece.composer} · {piece.year}
-            </p>
-            <p
-              className="text-sm italic"
-              style={{ color: "#6b6b7a", fontFamily: "var(--font-garamond)" }}
-            >
-              {piece.recommended_recording}
-            </p>
-          </header>
+          {/* Era */}
+          <p style={{ ...inter, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#b5a48a", marginBottom: 10 }}>
+            {era}
+          </p>
+
+          {/* Title */}
+          <h1 style={{ ...playfair, fontSize: 38, fontWeight: 400, lineHeight: 1.2, color: "#2c2418", marginBottom: 10 }}>
+            {piece.piece_name}
+          </h1>
+
+          {/* Composer / year */}
+          <p style={{ ...inter, fontSize: 13, fontWeight: 300, color: "#a89880", letterSpacing: "0.02em", marginBottom: 6 }}>
+            {piece.composer} · {piece.year}
+          </p>
+
+          {/* Recommended recording — italic, muted, below composer */}
+          <p style={{ ...playfair, fontSize: 13, fontStyle: "italic", color: "#b5a48a", marginBottom: 32 }}>
+            {piece.recommended_recording}
+          </p>
 
           {/* Embed */}
-          <YoutubeEmbed
-            videoId={videoId}
-            title={`${piece.piece_name} — ${piece.composer}`}
-            searchQuery={`${piece.piece_name} ${piece.composer}`}
-          />
+          <div style={{ marginBottom: 32 }}>
+            <YoutubeEmbed
+              videoId={videoId}
+              title={`${piece.piece_name} — ${piece.composer}`}
+              searchQuery={`${piece.piece_name} ${piece.composer}`}
+            />
+          </div>
 
           {/* Context */}
-          <p
-            className="text-2xl leading-relaxed"
-            style={{ fontFamily: "var(--font-garamond)", color: "#ddd5c0" }}
-          >
+          <p style={{ ...playfair, fontSize: 17, fontStyle: "italic", lineHeight: 1.75, color: "#3d3020", marginBottom: 36 }}>
             {piece.context}
           </p>
 
-          {/* Divider sections */}
-          <div
-            className="space-y-8 pt-8"
-            style={{ borderTop: "1px solid #2a2a3a" }}
-          >
-            <div className="space-y-2">
-              <p
-                className="text-xs tracking-[0.25em] uppercase"
-                style={{ color: "#8b7355", fontFamily: "var(--font-inter)" }}
-              >
-                What to listen for
-              </p>
-              <p
-                className="text-xl leading-relaxed"
-                style={{ fontFamily: "var(--font-garamond)", color: "#ddd5c0" }}
-              >
-                {piece.what_to_listen_for}
-              </p>
-            </div>
+          {/* Short divider */}
+          <div style={{ width: 32, height: 1, background: "#d4c9b5", marginBottom: 32 }} />
 
+          {/* What to listen for */}
+          <div style={{ marginBottom: 28 }}>
+            <p style={{ ...inter, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#b5a48a", marginBottom: 8 }}>
+              What to listen for
+            </p>
+            <p style={{ ...inter, fontSize: 14, fontWeight: 300, lineHeight: 1.7, color: "#6b5e4a" }}>
+              {piece.what_to_listen_for}
+            </p>
           </div>
 
         </article>
 
         {/* Footer */}
-        <footer className="mt-20 pb-8">
-          <p
-            className="text-xs tracking-[0.2em] uppercase text-center"
-            style={{ color: "#3a3a4a", fontFamily: "var(--font-inter)" }}
-          >
+        <footer style={{ marginTop: 64, paddingBottom: 48 }}>
+          <p style={{ ...inter, fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "#d4c9b5", textAlign: "center" }}>
             One piece, every day
           </p>
         </footer>

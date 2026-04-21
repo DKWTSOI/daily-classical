@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { EB_Garamond, Inter } from "next/font/google";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 
-const garamond = EB_Garamond({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-garamond",
+  variable: "--font-playfair",
   display: "swap",
 });
 
@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${garamond.variable} ${inter.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <body>{children}</body>
     </html>
   );
