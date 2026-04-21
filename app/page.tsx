@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { cache } from "react";
-import YoutubeEmbed from "./YoutubeEmbed";
+import PieceDisplay from "./PieceDisplay";
 
 export const revalidate = 3600;
 
@@ -23,14 +23,6 @@ function getEra(year: string | number): string {
   return "20th Century";
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
 const getDailyPiece = cache(async (): Promise<DailyPiece> => {
   const today = new Date().toISOString().split("T")[0];
   const client = new Anthropic();
@@ -49,10 +41,10 @@ Strict rules:
 - Occasionally include pieces stylistically related to: Mozart Fantasia K.397, Beethoven Pathétique Op.13, Satie Gymnopédies, Ravel, Debussy Rêverie — same mood or era, but unexpected choices.
 
 Return a JSON object with these exact fields:
-- piece_name: name of the piece
-- composer: composer's full name
+- piece_name: name of the piece (always in original language)
+- composer: composer's full name (always in original language)
 - year: year of composition (number)
-- context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play — before explaining anything else.
+- context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play.
 - what_to_listen_for: one specific musical detail to actively notice while listening — a motif, instrument, structural moment, or feeling shift. One sentence, concrete and vivid.
 - recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why.
 
@@ -77,11 +69,9 @@ Use today's date as a seed so the same piece shows all day but changes daily. Re
 async function searchYouTube(query: string): Promise<string | null> {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) return null;
-
   const url = `https://www.googleapis.com/youtube/v3/search?part=id&type=video&maxResults=1&q=${encodeURIComponent(query)}&key=${apiKey}`;
   const res = await fetch(url, { next: { revalidate: 3600 } });
   if (!res.ok) return null;
-
   const data = await res.json();
   return data.items?.[0]?.id?.videoId ?? null;
 }
@@ -100,9 +90,6 @@ export async function generateMetadata() {
     };
   }
 }
-
-const inter: React.CSSProperties = { fontFamily: "var(--font-inter)" };
-const playfair: React.CSSProperties = { fontFamily: "var(--font-playfair)" };
 
 export default async function Home() {
   let piece: DailyPiece | null = null;
@@ -124,83 +111,20 @@ export default async function Home() {
     );
   }
 
+  const dateKey = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
   const videoId = await searchYouTube(`${piece.composer} ${piece.piece_name} full performance`);
   const era = getEra(piece.year);
-  const today = formatDate(new Date());
 
   return (
     <main className="min-h-screen flex flex-col items-center px-6" style={{ paddingTop: 48 }}>
-      <div className="w-full" style={{ maxWidth: 560 }}>
-
-        {/* Top bar */}
-        <div className="flex justify-between items-center" style={{ marginBottom: 52 }}>
-          <span style={{ ...inter, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", fontVariant: "small-caps", color: "#a89880" }}>
-            {today}
-          </span>
-          <span style={{ ...inter, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", fontVariant: "small-caps", color: "#a89880" }}>
-            Attuned.today
-          </span>
-        </div>
-
-        <article>
-
-          {/* Era */}
-          <p style={{ ...inter, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#b5a48a", marginBottom: 10 }}>
-            {era}
-          </p>
-
-          {/* Title */}
-          <h1 style={{ ...playfair, fontSize: 42, fontWeight: 500, lineHeight: 1.2, color: "#2c2418", marginBottom: 10 }}>
-            {piece.piece_name}
-          </h1>
-
-          {/* Composer / year */}
-          <p style={{ ...inter, fontSize: 13, fontWeight: 300, color: "#a89880", letterSpacing: "0.02em", marginBottom: 6 }}>
-            {piece.composer} · {piece.year}
-          </p>
-
-          {/* Recommended recording — italic, muted, below composer */}
-          <p style={{ ...inter, fontSize: 13, fontWeight: 300, color: "#b5a48a", marginBottom: 32 }}>
-            {piece.recommended_recording}
-          </p>
-
-          {/* Embed */}
-          <div style={{ marginBottom: 32 }}>
-            <YoutubeEmbed
-              videoId={videoId}
-              title={`${piece.piece_name} — ${piece.composer}`}
-              searchQuery={`${piece.piece_name} ${piece.composer}`}
-            />
-          </div>
-
-          {/* Context */}
-          <p style={{ ...playfair, fontSize: 16, fontStyle: "normal", lineHeight: 1.75, color: "#2a231a", marginBottom: 36 }}>
-            {piece.context}
-          </p>
-
-          {/* Short divider */}
-          <div style={{ width: 32, height: 1, background: "#d4c9b5", marginBottom: 32 }} />
-
-          {/* What to listen for */}
-          <div style={{ marginBottom: 28 }}>
-            <p style={{ ...inter, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#b5a48a", marginBottom: 8 }}>
-              What to listen for
-            </p>
-            <p style={{ ...inter, fontSize: 14, fontWeight: 300, lineHeight: 1.7, color: "#4a3f32" }}>
-              {piece.what_to_listen_for}
-            </p>
-          </div>
-
-        </article>
-
-        {/* Footer */}
-        <footer style={{ marginTop: 64, paddingBottom: 48 }}>
-          <p style={{ ...inter, fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "#d4c9b5", textAlign: "center" }}>
-            One piece, every day
-          </p>
-        </footer>
-
-      </div>
+      <PieceDisplay
+        initial={piece}
+        videoId={videoId}
+        today={today}
+        dateKey={dateKey}
+        era={era}
+      />
     </main>
   );
 }
