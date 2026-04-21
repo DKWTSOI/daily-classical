@@ -3,10 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const date = searchParams.get("date") ?? new Date().toISOString().split("T")[0];
-  const lang = searchParams.get("lang") ?? "en";
-
-  const isZh = lang === "zh";
+  const piece_name = searchParams.get("piece_name") ?? "";
+  const composer = searchParams.get("composer") ?? "";
+  const year = searchParams.get("year") ?? "";
 
   const client = new Anthropic();
 
@@ -16,29 +15,21 @@ export async function GET(req: NextRequest) {
     system: [
       {
         type: "text",
-        text: `You are a classical music guide. Each day, suggest one classical piece worth discovering.
+        text: `You are a classical music guide. You will be given a specific classical piece and must write about it in Traditional Chinese (繁體中文) as used in formal written Hong Kong Chinese — 書面語, NOT Cantonese vernacular (廣東話). Use formal written Chinese throughout.
 
-Strict rules:
-- Never suggest overplayed classics: no Beethoven's 5th Symphony or Moonlight Sonata, no Pachelbel's Canon in D, no Vivaldi's Four Seasons, no Beethoven's Für Elise, no Debussy's Clair de Lune.
-- Prioritise lesser-known, surprising pieces a curious listener wouldn't have heard.
-- Occasionally include pieces stylistically related to: Mozart Fantasia K.397, Beethoven Pathétique Op.13, Satie Gymnopédies, Ravel, Debussy Rêverie — same mood or era, but unexpected choices.
+Return a JSON object with exactly these fields:
+- context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play. Write in 書面語 Traditional Chinese.
+- what_to_listen_for: one specific musical detail to actively notice while listening — a motif, instrument, structural moment, or feeling shift. One sentence, concrete and vivid. Write in 書面語 Traditional Chinese.
+- recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why. Write in 書面語 Traditional Chinese.
 
-Return a JSON object with these exact fields:
-- piece_name: name of the piece (always in original language)
-- composer: composer's full name (always in original language)
-- year: year of composition (number)
-- context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play.${isZh ? " Write in Traditional Chinese (繁體中文) as used in formal written Hong Kong Chinese — 書面語, NOT Cantonese vernacular (廣東話). Use formal written Chinese throughout." : ""}
-- what_to_listen_for: one specific musical detail to actively notice while listening — a motif, instrument, structural moment, or feeling shift. One sentence, concrete and vivid.${isZh ? " Write in Traditional Chinese (繁體中文), 書面語 only." : ""}
-- recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why.${isZh ? " Write in Traditional Chinese (繁體中文), 書面語 only." : ""}
-
-Use today's date as a seed so the same piece shows all day but changes daily. Return only valid JSON, no markdown.`,
+Return only valid JSON, no markdown.`,
         cache_control: { type: "ephemeral" },
       },
     ],
     messages: [
       {
         role: "user",
-        content: `Today's date: ${date}.`,
+        content: `The piece is: ${piece_name} by ${composer} (${year}).`,
       },
     ],
   });

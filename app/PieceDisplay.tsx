@@ -41,8 +41,16 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
   async function fetchZh() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/piece?date=${dateKey}&lang=zh`);
-      if (res.ok) setPiece(await res.json());
+      const params = new URLSearchParams({
+        piece_name: initial.piece_name,
+        composer: initial.composer,
+        year: String(initial.year),
+      });
+      const res = await fetch(`/api/piece?${params}`);
+      if (res.ok) {
+        const zh = await res.json();
+        setPiece({ ...initial, ...zh });
+      }
     } finally {
       setLoading(false);
     }
