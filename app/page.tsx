@@ -150,7 +150,7 @@ export default async function Home() {
           </p>
 
           {/* Title */}
-          <h1 style={{ ...playfair, fontSize: 38, fontWeight: 400, lineHeight: 1.2, color: "#2c2418", marginBottom: 10 }}>
+          <h1 style={{ ...playfair, fontSize: 42, fontWeight: 500, lineHeight: 1.2, color: "#2c2418", marginBottom: 10 }}>
             {piece.piece_name}
           </h1>
 
@@ -160,7 +160,7 @@ export default async function Home() {
           </p>
 
           {/* Recommended recording — italic, muted, below composer */}
-          <p style={{ ...playfair, fontSize: 13, fontStyle: "italic", color: "#b5a48a", marginBottom: 32 }}>
+          <p style={{ ...inter, fontSize: 13, fontWeight: 300, color: "#b5a48a", marginBottom: 32 }}>
             {piece.recommended_recording}
           </p>
 
@@ -174,7 +174,7 @@ export default async function Home() {
           </div>
 
           {/* Context */}
-          <p style={{ ...playfair, fontSize: 17, fontStyle: "italic", lineHeight: 1.75, color: "#3d3020", marginBottom: 36 }}>
+          <p style={{ ...playfair, fontSize: 16, fontStyle: "normal", lineHeight: 1.75, color: "#2a231a", marginBottom: 36 }}>
             {piece.context}
           </p>
 
@@ -186,7 +186,7 @@ export default async function Home() {
             <p style={{ ...inter, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#b5a48a", marginBottom: 8 }}>
               What to listen for
             </p>
-            <p style={{ ...inter, fontSize: 14, fontWeight: 300, lineHeight: 1.7, color: "#6b5e4a" }}>
+            <p style={{ ...inter, fontSize: 14, fontWeight: 300, lineHeight: 1.7, color: "#4a3f32" }}>
               {piece.what_to_listen_for}
             </p>
           </div>
