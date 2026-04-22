@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { cache } from "react";
+import { promises as fs } from "fs";
 import PieceDisplay from "./PieceDisplay";
 
 export const revalidate = 3600;
@@ -25,10 +26,19 @@ function getEra(year: string | number): string {
 
 const getDailyPiece = cache(async (): Promise<DailyPiece> => {
   const today = new Date().toISOString().split("T")[0];
-  const client = new Anthropic();
+  const cacheFile = `/tmp/piece-${today}.json`;
 
+  // Return cached response if it exists
+  try {
+    const cached = await fs.readFile(cacheFile, "utf-8");
+    return JSON.parse(cached);
+  } catch {
+    // Cache miss — call Claude
+  }
+
+  const client = new Anthropic();
   const message = await client.messages.create({
-    model: "claude-haiku-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 1024,
     system: [
       {
@@ -63,7 +73,11 @@ Use today's date as a seed so the same piece shows all day but changes daily. Re
   const text =
     message.content[0].type === "text" ? message.content[0].text : "";
   const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-  return JSON.parse(cleaned);
+  const piece = JSON.parse(cleaned);
+
+  // Save to cache
+  await fs.writeFile(cacheFile, JSON.stringify(piece), "utf-8");
+  return piece;
 });
 
 interface YouTubeResult {

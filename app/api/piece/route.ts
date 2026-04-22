@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { promises as fs } from "fs";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -7,10 +8,21 @@ export async function GET(req: NextRequest) {
   const composer = searchParams.get("composer") ?? "";
   const year = searchParams.get("year") ?? "";
 
+  const today = new Date().toISOString().split("T")[0];
+  const cacheFile = `/tmp/piece-${today}-zh.json`;
+
+  // Return cached ZH response if it exists
+  try {
+    const cached = await fs.readFile(cacheFile, "utf-8");
+    return NextResponse.json(JSON.parse(cached));
+  } catch {
+    // Cache miss — call Claude
+  }
+
   const client = new Anthropic();
 
   const message = await client.messages.create({
-    model: "claude-haiku-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 1024,
     system: [
       {
@@ -37,6 +49,9 @@ Return only valid JSON, no markdown.`,
   const text =
     message.content[0].type === "text" ? message.content[0].text : "";
   const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  const result = JSON.parse(cleaned);
 
-  return NextResponse.json(JSON.parse(cleaned));
+  // Save to cache
+  await fs.writeFile(cacheFile, JSON.stringify(result), "utf-8");
+  return NextResponse.json(result);
 }
