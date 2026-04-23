@@ -9,6 +9,8 @@ interface DailyPiece {
   piece_name: string;
   composer: string;
   year: string | number;
+  form: string;
+  difficulty: "Approachable" | "Intermediate" | "Challenging" | "Legendary";
   context: string;
   what_to_listen_for: string;
   recommended_recording: string;
@@ -54,8 +56,10 @@ Return a JSON object with these exact fields:
 - piece_name: name of the piece (always in original language)
 - composer: composer's full name (always in original language)
 - year: year of composition (number)
+- form: the musical form or genre in 1-3 words, e.g. "Piano sonata", "String quartet", "Nocturne", "Symphony", "Tone poem"
+- difficulty: one of exactly these four values — "Approachable", "Intermediate", "Challenging", "Legendary" — rating how demanding this piece is for a listener unfamiliar with classical music
 - context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play.
-- what_to_listen_for: one specific detail to actively notice while listening — focus on structural, emotional, or compositional elements: how a theme develops or transforms, a mood shift, a moment of tension or release, a surprising harmonic turn, or the emotional arc of a passage. Do NOT name specific instruments unless that instrument is absolutely central and unmistakable in the piece (e.g. do not say "listen for the flute" or "notice the harp" unless it is the obvious defining feature). One sentence, concrete and vivid.
+- what_to_listen_for: one specific detail to actively notice while listening — focus on structural, emotional, or compositional elements: how a theme develops or transforms, a mood shift, a moment of tension or release, a surprising harmonic turn, or the emotional arc of a passage. Do NOT name specific instruments unless that instrument is absolutely central and unmistakable in the piece. One sentence, concrete and vivid.
 - recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why.
 
 Use today's date as a seed so the same piece shows all day but changes daily. Return only valid JSON, no markdown.`,
@@ -75,8 +79,20 @@ Use today's date as a seed so the same piece shows all day but changes daily. Re
   const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
   const piece = JSON.parse(cleaned);
 
-  // Save to cache
+  // Save to daily cache
   await fs.writeFile(cacheFile, JSON.stringify(piece), "utf-8");
+
+  // Append to archive
+  const archiveFile = "/tmp/archive.json";
+  let archive: Array<{ date: string } & DailyPiece> = [];
+  try {
+    archive = JSON.parse(await fs.readFile(archiveFile, "utf-8"));
+  } catch { /* starts empty */ }
+  if (!archive.find((e) => e.date === today)) {
+    archive.unshift({ date: today, ...piece });
+    await fs.writeFile(archiveFile, JSON.stringify(archive), "utf-8");
+  }
+
   return piece;
 });
 

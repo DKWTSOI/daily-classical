@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import YoutubeEmbed from "./YoutubeEmbed";
 
 interface Piece {
   piece_name: string;
   composer: string;
   year: string | number;
+  form?: string;
+  difficulty?: string;
   context: string;
   what_to_listen_for: string;
   recommended_recording: string;
@@ -80,7 +83,10 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
             attuned<span style={{ color: ACCENT }}>.</span>today
           </span>
         </div>
-        <nav style={{ display: "flex", gap: 24, alignItems: "center", fontSize: 13, color: INK_S }}>
+        <nav style={{ display: "flex", gap: 20, alignItems: "center", fontSize: 13, color: INK_S }}>
+          <Link href="/archive" style={{ ...mono, fontSize: 11, letterSpacing: "0.06em", color: INK_M, textDecoration: "none" }}>
+            Archive
+          </Link>
           <button
             onClick={toggle}
             disabled={loading}
@@ -181,10 +187,9 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
         <h2 style={{ ...tight, fontSize: 22, fontWeight: 500, letterSpacing: "-0.02em", margin: "0 0 16px" }}>
           {isZh ? "推薦錄音" : "Recommended recording"}
         </h2>
-        <p style={{ fontSize: 16, lineHeight: 1.7, color: INK }}>
+        <p style={{ fontSize: 16, lineHeight: 1.7, color: INK, marginBottom: 40 }}>
           {piece.recommended_recording}
         </p>
-
 
       </main>
 
