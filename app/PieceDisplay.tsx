@@ -23,7 +23,6 @@ interface Props {
 
 // Design tokens
 const PAPER   = "oklch(0.97 0.012 80)";
-const PAPER2  = "oklch(0.94 0.014 80)";
 const INK     = "oklch(0.22 0.012 70)";
 const INK_S   = "oklch(0.42 0.012 70)";
 const INK_M   = "oklch(0.62 0.01 70)";
@@ -34,23 +33,6 @@ const tight = { fontFamily: "var(--font-inter-tight)" } as React.CSSProperties;
 const mono  = { fontFamily: "var(--font-mono)" } as React.CSSProperties;
 const sans  = { fontFamily: "var(--font-inter)" } as React.CSSProperties;
 
-// Animated waveform bars (decorative)
-function Waveform() {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 2, height: 52 }}>
-      {Array.from({ length: 36 }).map((_, i) => (
-        <span key={i} style={{
-          flex: 1,
-          background: INK,
-          display: "inline-block",
-          height: `${20 + Math.abs(Math.sin(i * 0.6)) * 70}%`,
-          opacity: 0.25 + Math.abs(Math.sin(i * 0.9)) * 0.45,
-          borderRadius: 1,
-        }} />
-      ))}
-    </div>
-  );
-}
 
 export default function PieceDisplay({ initial, videoId, videoTitle, today, dateKey, era }: Props) {
   const [lang, setLang]     = useState<"en" | "zh">("en");
@@ -160,30 +142,6 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
           <span style={{ ...mono, fontSize: 14, color: INK_M }}>{piece.year}</span>
         </div>
 
-        {/* Context / lede */}
-        <p style={{ fontSize: 18, lineHeight: 1.6, color: INK, marginBottom: 40, maxWidth: 620 }}>
-          {piece.context}
-        </p>
-
-        {/* Recording card */}
-        <figure style={{
-          display: "grid", gridTemplateColumns: "1fr 180px", gap: 24, alignItems: "center",
-          marginBottom: 40, padding: "24px 28px", background: PAPER2, border: `1px solid ${RULE}`, borderRadius: 2,
-        }}>
-          <div>
-            <div style={{ ...mono, fontSize: 10, letterSpacing: "0.2em", color: INK_M, textTransform: "uppercase" as const, marginBottom: 6 }}>
-              {isZh ? "推薦錄音" : "Recording"}
-            </div>
-            <div style={{ ...tight, fontSize: 18, fontWeight: 500, letterSpacing: "-0.02em", marginBottom: 8 }}>
-              {piece.recommended_recording.split("'s")[0] || piece.recommended_recording.split(" ")[0]}
-            </div>
-            <div style={{ fontSize: 13, color: INK_S, lineHeight: 1.55 }}>
-              {piece.recommended_recording}
-            </div>
-          </div>
-          <Waveform />
-        </figure>
-
         {/* YouTube embed */}
         <div style={{ marginBottom: videoTitle ? 8 : 40 }}>
           <YoutubeEmbed
@@ -198,15 +156,31 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
           </p>
         )}
 
+        {/* Context / lede */}
+        <p style={{ fontSize: 18, lineHeight: 1.6, color: INK, marginBottom: 48, maxWidth: 620 }}>
+          {piece.context}
+        </p>
+
         {/* Rule */}
-        <div style={{ height: 1, background: RULE, margin: "48px 0" }} />
+        <div style={{ height: 1, background: RULE, margin: "0 0 40px" }} />
 
         {/* What to listen for */}
         <h2 style={{ ...tight, fontSize: 22, fontWeight: 500, letterSpacing: "-0.02em", margin: "0 0 16px" }}>
           {isZh ? "聆聽重點" : "What to listen for"}
         </h2>
-        <p style={{ fontSize: 16, lineHeight: 1.7, color: INK, maxWidth: 600 }}>
+        <p style={{ fontSize: 16, lineHeight: 1.7, color: INK, maxWidth: 600, marginBottom: 40 }}>
           {piece.what_to_listen_for}
+        </p>
+
+        {/* Rule */}
+        <div style={{ height: 1, background: RULE, margin: "0 0 40px" }} />
+
+        {/* Recommended recording */}
+        <h2 style={{ ...tight, fontSize: 22, fontWeight: 500, letterSpacing: "-0.02em", margin: "0 0 16px" }}>
+          {isZh ? "推薦錄音" : "Recommended recording"}
+        </h2>
+        <p style={{ fontSize: 16, lineHeight: 1.7, color: INK, maxWidth: 600 }}>
+          {piece.recommended_recording}
         </p>
 
 
