@@ -150,7 +150,7 @@ export default async function Home() {
   const era = getEra(piece.year);
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-6" style={{ paddingTop: 48 }}>
+    <main>
       <PieceDisplay
         initial={piece}
         videoId={yt?.videoId ?? null}

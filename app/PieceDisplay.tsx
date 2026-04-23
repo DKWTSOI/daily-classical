@@ -21,21 +21,47 @@ interface Props {
   era: string;
 }
 
-const inter: React.CSSProperties = { fontFamily: "var(--font-inter)" };
-const playfair: React.CSSProperties = { fontFamily: "var(--font-playfair)" };
+// Design tokens
+const PAPER   = "oklch(0.97 0.012 80)";
+const PAPER2  = "oklch(0.94 0.014 80)";
+const INK     = "oklch(0.22 0.012 70)";
+const INK_S   = "oklch(0.42 0.012 70)";
+const INK_M   = "oklch(0.62 0.01 70)";
+const RULE    = "oklch(0.86 0.012 80)";
+const ACCENT  = "oklch(0.55 0.14 45)";
+
+const tight = { fontFamily: "var(--font-inter-tight)" } as React.CSSProperties;
+const mono  = { fontFamily: "var(--font-mono)" } as React.CSSProperties;
+const sans  = { fontFamily: "var(--font-inter)" } as React.CSSProperties;
+
+// Animated waveform bars (decorative)
+function Waveform() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 2, height: 52 }}>
+      {Array.from({ length: 36 }).map((_, i) => (
+        <span key={i} style={{
+          flex: 1,
+          background: INK,
+          display: "inline-block",
+          height: `${20 + Math.abs(Math.sin(i * 0.6)) * 70}%`,
+          opacity: 0.25 + Math.abs(Math.sin(i * 0.9)) * 0.45,
+          borderRadius: 1,
+        }} />
+      ))}
+    </div>
+  );
+}
 
 export default function PieceDisplay({ initial, videoId, videoTitle, today, dateKey, era }: Props) {
-  const [lang, setLang] = useState<"en" | "zh">("en");
-  const [piece, setPiece] = useState<Piece>(initial);
+  const [lang, setLang]     = useState<"en" | "zh">("en");
+  const [piece, setPiece]   = useState<Piece>(initial);
   const [loading, setLoading] = useState(false);
+  const [email, setEmail]   = useState("");
+  const [subscribed, setSubscribed] = useState(false);
 
-  // On mount, read saved preference
   useEffect(() => {
     const saved = localStorage.getItem("attunedLang") as "en" | "zh" | null;
-    if (saved === "zh") {
-      setLang("zh");
-      fetchZh();
-    }
+    if (saved === "zh") { setLang("zh"); fetchZh(); }
   }, []);
 
   async function fetchZh() {
@@ -47,83 +73,123 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
         year: String(initial.year),
       });
       const res = await fetch(`/api/piece?${params}`);
-      if (res.ok) {
-        const zh = await res.json();
-        setPiece({ ...initial, ...zh });
-      }
-    } finally {
-      setLoading(false);
-    }
+      if (res.ok) setPiece({ ...initial, ...(await res.json()) });
+    } finally { setLoading(false); }
   }
 
   function toggle() {
     const next = lang === "en" ? "zh" : "en";
     setLang(next);
     localStorage.setItem("attunedLang", next);
-    if (next === "zh") {
-      fetchZh();
-    } else {
-      setPiece(initial);
-    }
+    if (next === "zh") { fetchZh(); } else { setPiece(initial); }
   }
 
-  return (
-    <div className="w-full" style={{ maxWidth: 560 }}>
+  const isZh = lang === "zh";
 
-      {/* Top bar */}
-      <div className="flex justify-between items-center" style={{ marginBottom: 52 }}>
-        <span style={{ ...inter, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: "#a89880" }}>
-          {today}
-        </span>
-        <div className="flex items-center gap-4">
-          <span style={{ ...inter, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: "#a89880" }}>
-            Attuned.today
+  return (
+    <div style={{ background: PAPER, color: INK, minHeight: "100vh", ...sans }}>
+
+      {/* ── Header ── */}
+      <header style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: "24px 40px", borderBottom: `1px solid ${RULE}`,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 22, color: ACCENT, lineHeight: 1 }}>◐</span>
+          <span style={{ ...tight, fontWeight: 600, fontSize: 17, letterSpacing: "-0.01em" }}>
+            attuned<span style={{ color: ACCENT }}>.</span>today
           </span>
+        </div>
+        <nav style={{ display: "flex", gap: 24, alignItems: "center", fontSize: 13, color: INK_S }}>
           <button
             onClick={toggle}
             disabled={loading}
             style={{
-              ...inter,
-              fontSize: 10,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: loading ? "#d4c9b5" : lang === "zh" ? "#2a231a" : "#b5a48a",
-              background: "none",
-              border: "none",
-              cursor: loading ? "default" : "pointer",
-              padding: 0,
-              transition: "color 0.2s",
+              ...mono, fontSize: 11, letterSpacing: "0.06em", color: loading ? INK_M : INK_S,
+              background: "none", border: `1px solid ${RULE}`, borderRadius: 999,
+              padding: "4px 12px", cursor: loading ? "default" : "pointer",
             }}
           >
-            {lang === "en" ? "中文" : "EN"}
+            {isZh ? "EN" : "中文"}
           </button>
-        </div>
+        </nav>
+      </header>
+
+      {/* ── Onboarding strip ── */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 12,
+        padding: "14px 40px", background: PAPER2, borderBottom: `1px solid ${RULE}`,
+        fontSize: 13, color: INK_S,
+      }}>
+        <span style={{ width: 6, height: 6, borderRadius: "50%", background: ACCENT, display: "inline-block", flexShrink: 0 }} />
+        {isZh
+          ? "每天一首值得細聽的古典樂——精選、注釋，靜候您的耳朵。"
+          : "One piece of classical music, every day — chosen, annotated, and waiting for your ear."}
       </div>
 
-      <article style={{ opacity: loading ? 0.5 : 1, transition: "opacity 0.2s" }}>
+      {/* ── Main ── */}
+      <main style={{ maxWidth: 720, margin: "0 auto", padding: "56px 40px 80px", opacity: loading ? 0.5 : 1, transition: "opacity 0.2s" }}>
 
-        {/* Era */}
-        <p style={{ ...inter, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#b5a48a", marginBottom: 10 }}>
-          {era}
-        </p>
+        {/* Meta row */}
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 36 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+            <span style={{ ...tight, fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em" }}>
+              {today.split(" ")[0]}
+            </span>
+            <span style={{ ...mono, fontSize: 11, color: INK_M, letterSpacing: "0.12em" }}>
+              {today.split(" ").slice(1).join(" ").toUpperCase()}
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+            <span style={{ ...mono, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase" as const, padding: "4px 10px", border: `1px solid ${RULE}`, borderRadius: 999, color: INK_S }}>
+              {era}
+            </span>
+          </div>
+        </div>
+
+        {/* Kicker */}
+        <div style={{ ...mono, fontSize: 11, letterSpacing: "0.2em", color: INK_M, marginBottom: 14, textTransform: "uppercase" as const }}>
+          {isZh ? "今日之選" : "Today's piece"}
+        </div>
 
         {/* Title */}
-        <h1 style={{ ...playfair, fontSize: 42, fontWeight: 500, lineHeight: 1.2, color: "#2c2418", marginBottom: 10 }}>
+        <h1 style={{ ...tight, fontSize: "clamp(42px, 6vw, 68px)", fontWeight: 500, letterSpacing: "-0.035em", lineHeight: 1.02, margin: "0 0 16px" }}>
           {piece.piece_name}
         </h1>
 
-        {/* Composer / year */}
-        <p style={{ ...inter, fontSize: 13, fontWeight: 300, color: "#a89880", letterSpacing: "0.02em", marginBottom: 6 }}>
-          {piece.composer} · {piece.year}
+        {/* Composer · year */}
+        <div style={{ fontSize: 17, color: INK_S, display: "flex", alignItems: "center", gap: 12, marginBottom: 40 }}>
+          <span style={{ color: INK, fontWeight: 500 }}>{piece.composer}</span>
+          <span style={{ color: INK_M }}>·</span>
+          <span style={{ ...mono, fontSize: 14, color: INK_M }}>{piece.year}</span>
+        </div>
+
+        {/* Context / lede */}
+        <p style={{ fontSize: 18, lineHeight: 1.6, color: INK, marginBottom: 40, maxWidth: 620 }}>
+          {piece.context}
         </p>
 
-        {/* Recommended recording — below composer */}
-        <p style={{ ...inter, fontSize: 13, fontWeight: 300, color: "#b5a48a", marginBottom: 32 }}>
-          {piece.recommended_recording}
-        </p>
+        {/* Recording card */}
+        <figure style={{
+          display: "grid", gridTemplateColumns: "1fr 180px", gap: 24, alignItems: "center",
+          marginBottom: 40, padding: "24px 28px", background: PAPER2, border: `1px solid ${RULE}`, borderRadius: 2,
+        }}>
+          <div>
+            <div style={{ ...mono, fontSize: 10, letterSpacing: "0.2em", color: INK_M, textTransform: "uppercase" as const, marginBottom: 6 }}>
+              {isZh ? "推薦錄音" : "Recording"}
+            </div>
+            <div style={{ ...tight, fontSize: 18, fontWeight: 500, letterSpacing: "-0.02em", marginBottom: 8 }}>
+              {piece.recommended_recording.split("'s")[0] || piece.recommended_recording.split(" ")[0]}
+            </div>
+            <div style={{ fontSize: 13, color: INK_S, lineHeight: 1.55 }}>
+              {piece.recommended_recording}
+            </div>
+          </div>
+          <Waveform />
+        </figure>
 
-        {/* Embed */}
-        <div style={{ marginBottom: videoTitle ? 8 : 32 }}>
+        {/* YouTube embed */}
+        <div style={{ marginBottom: videoTitle ? 8 : 40 }}>
           <YoutubeEmbed
             videoId={videoId}
             title={`${piece.piece_name} — ${piece.composer}`}
@@ -131,36 +197,77 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
           />
         </div>
         {videoTitle && (
-          <p style={{ ...inter, fontSize: 11, fontWeight: 300, color: "#b5a48a", marginBottom: 32, lineHeight: 1.4 }}>
+          <p style={{ ...mono, fontSize: 11, color: INK_M, marginBottom: 40, lineHeight: 1.4 }}>
             {videoTitle}
           </p>
         )}
 
-        {/* Context */}
-        <p style={{ ...playfair, fontSize: 16, fontStyle: "normal", lineHeight: 1.75, color: "#2a231a", marginBottom: 36 }}>
-          {piece.context}
-        </p>
-
-        {/* Short divider */}
-        <div style={{ width: 32, height: 1, background: "#d4c9b5", marginBottom: 32 }} />
+        {/* Rule */}
+        <div style={{ height: 1, background: RULE, margin: "48px 0" }} />
 
         {/* What to listen for */}
-        <div style={{ marginBottom: 28 }}>
-          <p style={{ ...inter, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#b5a48a", marginBottom: 8 }}>
-            {lang === "zh" ? "聆聽重點" : "What to listen for"}
-          </p>
-          <p style={{ ...inter, fontSize: 14, fontWeight: 300, lineHeight: 1.7, color: "#4a3f32" }}>
-            {piece.what_to_listen_for}
-          </p>
+        <h2 style={{ ...tight, fontSize: 22, fontWeight: 500, letterSpacing: "-0.02em", margin: "0 0 16px" }}>
+          {isZh ? "聆聽重點" : "What to listen for"}
+        </h2>
+        <p style={{ fontSize: 16, lineHeight: 1.7, color: INK, maxWidth: 600 }}>
+          {piece.what_to_listen_for}
+        </p>
+
+        {/* Rule */}
+        <div style={{ height: 1, background: RULE, margin: "48px 0" }} />
+
+        {/* Subscribe */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center" }}>
+          <div>
+            <div style={{ ...mono, fontSize: 10, letterSpacing: "0.2em", color: INK_M, textTransform: "uppercase" as const, marginBottom: 8 }}>
+              {isZh ? "保留這首樂曲" : "Keep this piece"}
+            </div>
+            <div style={{ ...tight, fontSize: 24, fontWeight: 500, letterSpacing: "-0.025em", lineHeight: 1.1, marginBottom: 10 }}>
+              {isZh ? "明日之選，送達您的收件箱。" : "Tomorrow's in your inbox."}
+            </div>
+            <div style={{ fontSize: 13, color: INK_S, lineHeight: 1.55 }}>
+              {isZh
+                ? "每日精選——標題、注釋、錄音——每天清晨送達。一封郵件，隨時退訂。"
+                : "Each day's piece — title, notes, recording — delivered once at dawn. One email, no threads, unsubscribe with a click."}
+            </div>
+          </div>
+          <form
+            onSubmit={(e) => { e.preventDefault(); if (email) setSubscribed(true); }}
+            style={{ display: "flex", border: `1px solid ${INK}`, borderRadius: 2, overflow: "hidden" }}
+          >
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={isZh ? "您的電郵地址" : "you@wherever.com"}
+              style={{
+                flex: 1, padding: "12px 14px", fontSize: 14, border: "none",
+                background: PAPER, color: INK, outline: "none", ...sans,
+              }}
+            />
+            <button
+              type="submit"
+              style={{
+                ...mono, padding: "0 18px", fontSize: 11, letterSpacing: "0.08em",
+                textTransform: "uppercase" as const, background: INK, color: PAPER,
+                border: "none", cursor: "pointer", whiteSpace: "nowrap" as const,
+              }}
+            >
+              {subscribed ? (isZh ? "✓ 已訂閱" : "✓ Done") : (isZh ? "訂閱" : "Subscribe")}
+            </button>
+          </form>
         </div>
 
-      </article>
+      </main>
 
-      {/* Footer */}
-      <footer style={{ marginTop: 64, paddingBottom: 48 }}>
-        <p style={{ ...inter, fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "#d4c9b5", textAlign: "center" }}>
-          {lang === "zh" ? "每天一首古典樂" : "One piece, every day"}
-        </p>
+      {/* ── Footer ── */}
+      <footer style={{
+        maxWidth: 720, margin: "0 auto", padding: "24px 40px 48px",
+        borderTop: `1px solid ${RULE}`, display: "flex", justifyContent: "space-between",
+        fontSize: 12, color: INK_M,
+      }}>
+        <span>{isZh ? "每天一首古典樂。" : "One piece, every day."}</span>
+        <span style={{ ...mono, letterSpacing: "0.06em" }}>attuned.today · {today}</span>
       </footer>
 
     </div>
