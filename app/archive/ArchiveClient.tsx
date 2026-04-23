@@ -9,7 +9,6 @@ interface ArchiveEntry {
   composer: string;
   year: string | number;
   form: string;
-  difficulty: string;
 }
 
 const PAPER  = "oklch(0.97 0.012 80)";
@@ -24,22 +23,17 @@ const mono  = { fontFamily: "var(--font-mono)" } as React.CSSProperties;
 const sans  = { fontFamily: "var(--font-inter)" } as React.CSSProperties;
 
 const ERAS = ["All eras", "Renaissance", "Baroque", "Classical", "Romantic", "Late Romantic · Modern", "20th Century"];
-const DIFFICULTIES = ["All", "Approachable", "Intermediate", "Challenging", "Legendary"];
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
 export default function ArchiveClient({ entries }: { entries: ArchiveEntry[] }) {
-  const [era, setEra]        = useState("All eras");
-  const [diff, setDiff]      = useState("All");
   const [form, setForm]      = useState("All");
 
   // Sync filters to/from URL params
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
-    if (p.get("era"))  setEra(p.get("era")!);
-    if (p.get("diff")) setDiff(p.get("diff")!);
     if (p.get("form")) setForm(p.get("form")!);
   }, []);
 
@@ -51,15 +45,11 @@ export default function ArchiveClient({ entries }: { entries: ArchiveEntry[] }) 
     window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
   }
 
-  function setEraF(v: string)  { setEra(v);  updateFilter("era", v); }
-  function setDiffF(v: string) { setDiff(v); updateFilter("diff", v); }
   function setFormF(v: string) { setForm(v); updateFilter("form", v); }
 
   const forms = ["All", ...Array.from(new Set(entries.map(e => e.form).filter(Boolean))).sort()];
 
   const filtered = entries.filter(e => {
-    if (era  !== "All eras" && e.form /* era would need storing */ ) { /* skip era for now, no era field */ }
-    if (diff !== "All" && e.difficulty !== diff) return false;
     if (form !== "All" && e.form !== form) return false;
     return true;
   });
@@ -103,12 +93,6 @@ export default function ArchiveClient({ entries }: { entries: ArchiveEntry[] }) 
 
         {/* Filters */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 36 }}>
-          {DIFFICULTIES.map(d => (
-            <button key={d} onClick={() => setDiffF(d)} style={chipStyle(diff === d)}>
-              {d}
-            </button>
-          ))}
-          <div style={{ width: 1, background: RULE, margin: "0 4px" }} />
           {forms.map(f => (
             <button key={f} onClick={() => setFormF(f)} style={chipStyle(form === f)}>
               {f}
@@ -143,18 +127,11 @@ export default function ArchiveClient({ entries }: { entries: ArchiveEntry[] }) 
                     {e.composer} · {e.year}
                   </span>
                 </div>
-                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                  {e.form && (
-                    <span style={{ ...mono, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", padding: "3px 8px", border: `1px solid ${RULE}`, borderRadius: 999, color: INK_S }}>
-                      {e.form}
-                    </span>
-                  )}
-                  {e.difficulty && (
-                    <span style={{ ...mono, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", padding: "3px 8px", border: `1px solid ${e.difficulty === "Legendary" ? "oklch(0.85 0.05 45)" : RULE}`, borderRadius: 999, color: e.difficulty === "Legendary" ? ACCENT : INK_M }}>
-                      {e.difficulty}
-                    </span>
-                  )}
-                </div>
+                {e.form && (
+                  <span style={{ ...mono, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", padding: "3px 8px", border: `1px solid ${RULE}`, borderRadius: 999, color: INK_S, whiteSpace: "nowrap" }}>
+                    {e.form}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

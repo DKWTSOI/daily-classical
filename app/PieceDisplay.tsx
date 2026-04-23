@@ -9,7 +9,6 @@ interface Piece {
   composer: string;
   year: string | number;
   form?: string;
-  difficulty?: string;
   context: string;
   what_to_listen_for: string;
   recommended_recording: string;
