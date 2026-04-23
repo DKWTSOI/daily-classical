@@ -49,7 +49,8 @@ const getDailyPiece = cache(async (): Promise<DailyPiece> => {
 Strict rules:
 - Never suggest overplayed classics: no Beethoven's 5th Symphony or Moonlight Sonata, no Pachelbel's Canon in D, no Vivaldi's Four Seasons, no Beethoven's Für Elise, no Debussy's Clair de Lune.
 - Prioritise lesser-known, surprising pieces a curious listener wouldn't have heard.
-- Occasionally include pieces stylistically related to: Mozart Fantasia K.397, Beethoven Pathétique Op.13, Satie Gymnopédies, Ravel, Debussy Rêverie — same mood or era, but unexpected choices.
+- Vary the form broadly across days: piano solo, symphony, string quartet, song cycle, piano concerto, violin concerto, choral work, opera aria, chamber music, solo violin, cello sonata, and more. Do NOT default to piano solo — actively rotate across very different forms and ensembles.
+- Occasionally include pieces stylistically related to: Mozart Fantasia K.397, Beethoven Pathétique Op.13, Satie Gymnopédies, Ravel, Debussy Rêverie — same mood or era, but unexpected choices and varied instrumentation.
 
 Return a JSON object with these exact fields:
 - piece_name: name of the piece (always in original language)

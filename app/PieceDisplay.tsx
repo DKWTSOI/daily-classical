@@ -129,6 +129,11 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
             <span style={{ ...mono, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase" as const, padding: "4px 10px", border: `1px solid ${RULE}`, borderRadius: 999, color: INK_S }}>
               {era}
             </span>
+            {piece.form && (
+              <span style={{ ...mono, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase" as const, padding: "4px 10px", border: `1px solid ${RULE}`, borderRadius: 999, color: INK_S }}>
+                {piece.form}
+              </span>
+            )}
           </div>
         </div>
 
