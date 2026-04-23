@@ -72,7 +72,7 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
       {/* ── Header ── */}
       <header style={{
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "24px 40px", borderBottom: `1px solid ${RULE}`,
+        padding: "20px 20px", borderBottom: `1px solid ${RULE}`,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 22, color: ACCENT, lineHeight: 1 }}>◐</span>
@@ -98,7 +98,7 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
       {/* ── Onboarding strip ── */}
       <div style={{
         display: "flex", alignItems: "center", gap: 12,
-        padding: "14px 40px", background: PAPER2, borderBottom: `1px solid ${RULE}`,
+        padding: "12px 20px", background: "oklch(0.94 0.014 80)", borderBottom: `1px solid ${RULE}`,
         fontSize: 13, color: INK_S,
       }}>
         <span style={{ width: 6, height: 6, borderRadius: "50%", background: ACCENT, display: "inline-block", flexShrink: 0 }} />
@@ -106,7 +106,9 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
       </div>
 
       {/* ── Main ── */}
-      <main style={{ maxWidth: 720, margin: "0 auto", padding: "56px 40px 80px", opacity: loading ? 0.5 : 1, transition: "opacity 0.2s" }}>
+      <main style={{ maxWidth: 720, margin: "0 auto", padding: "40px 20px 80px", opacity: loading ? 0.5 : 1, transition: "opacity 0.2s" }}
+        className="sm:px-10"
+      >
 
         {/* Meta row */}
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 36 }}>
@@ -179,7 +181,7 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
         <h2 style={{ ...tight, fontSize: 22, fontWeight: 500, letterSpacing: "-0.02em", margin: "0 0 16px" }}>
           {isZh ? "推薦錄音" : "Recommended recording"}
         </h2>
-        <p style={{ fontSize: 16, lineHeight: 1.7, color: INK, maxWidth: 600 }}>
+        <p style={{ fontSize: 16, lineHeight: 1.7, color: INK }}>
           {piece.recommended_recording}
         </p>
 
@@ -188,7 +190,7 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
 
       {/* ── Footer ── */}
       <footer style={{
-        maxWidth: 720, margin: "0 auto", padding: "24px 40px 48px",
+        maxWidth: 720, margin: "0 auto", padding: "24px 20px 48px",
         borderTop: `1px solid ${RULE}`, display: "flex", justifyContent: "space-between",
         fontSize: 12, color: INK_M,
       }}>
