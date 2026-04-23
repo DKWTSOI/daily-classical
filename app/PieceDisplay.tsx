@@ -56,8 +56,6 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
   const [lang, setLang]     = useState<"en" | "zh">("en");
   const [piece, setPiece]   = useState<Piece>(initial);
   const [loading, setLoading] = useState(false);
-  const [email, setEmail]   = useState("");
-  const [subscribed, setSubscribed] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("attunedLang") as "en" | "zh" | null;
@@ -122,9 +120,7 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
         fontSize: 13, color: INK_S,
       }}>
         <span style={{ width: 6, height: 6, borderRadius: "50%", background: ACCENT, display: "inline-block", flexShrink: 0 }} />
-        {isZh
-          ? "每天一首值得細聽的古典樂——精選、注釋，靜候您的耳朵。"
-          : "One piece of classical music, every day — chosen, annotated, and waiting for your ear."}
+        {isZh ? "每天一首古典樂。" : "Your daily dose of classical music."}
       </div>
 
       {/* ── Main ── */}
@@ -213,50 +209,6 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
           {piece.what_to_listen_for}
         </p>
 
-        {/* Rule */}
-        <div style={{ height: 1, background: RULE, margin: "48px 0" }} />
-
-        {/* Subscribe */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center" }}>
-          <div>
-            <div style={{ ...mono, fontSize: 10, letterSpacing: "0.2em", color: INK_M, textTransform: "uppercase" as const, marginBottom: 8 }}>
-              {isZh ? "保留這首樂曲" : "Keep this piece"}
-            </div>
-            <div style={{ ...tight, fontSize: 24, fontWeight: 500, letterSpacing: "-0.025em", lineHeight: 1.1, marginBottom: 10 }}>
-              {isZh ? "明日之選，送達您的收件箱。" : "Tomorrow's in your inbox."}
-            </div>
-            <div style={{ fontSize: 13, color: INK_S, lineHeight: 1.55 }}>
-              {isZh
-                ? "每日精選——標題、注釋、錄音——每天清晨送達。一封郵件，隨時退訂。"
-                : "Each day's piece — title, notes, recording — delivered once at dawn. One email, no threads, unsubscribe with a click."}
-            </div>
-          </div>
-          <form
-            onSubmit={(e) => { e.preventDefault(); if (email) setSubscribed(true); }}
-            style={{ display: "flex", border: `1px solid ${INK}`, borderRadius: 2, overflow: "hidden" }}
-          >
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={isZh ? "您的電郵地址" : "you@wherever.com"}
-              style={{
-                flex: 1, padding: "12px 14px", fontSize: 14, border: "none",
-                background: PAPER, color: INK, outline: "none", ...sans,
-              }}
-            />
-            <button
-              type="submit"
-              style={{
-                ...mono, padding: "0 18px", fontSize: 11, letterSpacing: "0.08em",
-                textTransform: "uppercase" as const, background: INK, color: PAPER,
-                border: "none", cursor: "pointer", whiteSpace: "nowrap" as const,
-              }}
-            >
-              {subscribed ? (isZh ? "✓ 已訂閱" : "✓ Done") : (isZh ? "訂閱" : "Subscribe")}
-            </button>
-          </form>
-        </div>
 
       </main>
 
