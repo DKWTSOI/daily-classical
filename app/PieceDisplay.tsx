@@ -50,9 +50,9 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
     setLoading(true);
     try {
       const params = new URLSearchParams({
-        piece_name: initial.piece_name,
-        composer: initial.composer,
-        year: String(initial.year),
+        context: initial.context,
+        what_to_listen_for: initial.what_to_listen_for,
+        recommended_recording: initial.recommended_recording,
       });
       const res = await fetch(`/api/piece?${params}`);
       if (res.ok) setPiece({ ...initial, ...(await res.json()) });

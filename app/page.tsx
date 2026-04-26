@@ -57,9 +57,9 @@ Return a JSON object with these exact fields:
 - composer: composer's full name (always in original language)
 - year: year of composition (number)
 - form: the musical form or genre in 1-3 words, e.g. "Piano sonata", "String quartet", "Nocturne", "Symphony", "Tone poem"
-- context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play.
-- what_to_listen_for: one specific detail to actively notice while listening — focus on structural, emotional, or compositional elements: how a theme develops or transforms, a mood shift, a moment of tension or release, a surprising harmonic turn, or the emotional arc of a passage. Do NOT name specific instruments unless that instrument is absolutely central and unmistakable in the piece. One sentence, concrete and vivid.
-- recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why.
+- context: 2-3 sentences, warm and literary tone — not academic, not a Wikipedia summary. Always open with one intriguing hook sentence that makes someone want to press play. Follow these honesty rules strictly: (1) Never present invented or paraphrased quotes as direct quotes — if referencing what a composer said, write "reportedly" or "it is said that" rather than presenting it as verified. (2) Distinguish clearly between documented fact and critical interpretation — write "many listeners hear this as..." rather than "Brahms wrote this as...". Keep the literary quality — just be honest about what is fact versus feeling.
+- what_to_listen_for: one specific detail a listener can verify with their own ears — structural or emotional only: how a theme develops or transforms, a mood shift, a moment of tension or release, a surprising harmonic turn, or the arc of a passage. Never name a specific instrument unless you are certain it is prominent and unmistakable at that moment. One sentence, concrete and vivid.
+- recommended_recording: one specific performer, conductor, or ensemble, with one sentence on why their interpretation is worth seeking out.
 
 Use today's date as a seed so the same piece shows all day but changes daily. Return only valid JSON, no markdown.`,
         cache_control: { type: "ephemeral" },

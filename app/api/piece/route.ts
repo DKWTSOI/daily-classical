@@ -4,9 +4,9 @@ import { promises as fs } from "fs";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const piece_name = searchParams.get("piece_name") ?? "";
-  const composer = searchParams.get("composer") ?? "";
-  const year = searchParams.get("year") ?? "";
+  const context              = searchParams.get("context") ?? "";
+  const what_to_listen_for   = searchParams.get("what_to_listen_for") ?? "";
+  const recommended_recording = searchParams.get("recommended_recording") ?? "";
 
   const today = new Date().toISOString().split("T")[0];
   const cacheFile = `/tmp/piece-${today}-zh.json`;
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const cached = await fs.readFile(cacheFile, "utf-8");
     return NextResponse.json(JSON.parse(cached));
   } catch {
-    // Cache miss — call Claude
+    // Cache miss — translate
   }
 
   const client = new Anthropic();
@@ -27,31 +27,29 @@ export async function GET(req: NextRequest) {
     system: [
       {
         type: "text",
-        text: `You are a classical music guide. You will be given a specific classical piece and must write about it EXCLUSIVELY in Traditional Chinese (繁體中文). This is non-negotiable: every single character must be Traditional Chinese. NEVER use Simplified Chinese (简体字) under any circumstances. Write in formal 書面語 as used in Hong Kong — NOT Cantonese vernacular (廣東話), NOT Mainland Chinese Simplified script. If you are unsure whether a character is Traditional or Simplified, use the Traditional form. Examples of correct script: 樂、聽、這、時、來、個、為、說、國、愛.
+        text: `You are a translator. Translate the following classical music text fields from English into Traditional Chinese (繁體中文).
 
-Return a JSON object with exactly these fields:
-- context: 2-3 sentences, warm and curious tone, not academic. Always open with one intriguing hook sentence that makes someone want to press play. Write in 書面語 Traditional Chinese.
-- what_to_listen_for: one specific detail to actively notice while listening — focus on structural, emotional, or compositional elements: how a theme develops or transforms, a mood shift, a moment of tension or release, a surprising harmonic turn, or the emotional arc of a passage. Do NOT name specific instruments unless that instrument is absolutely central and unmistakable in the piece. One sentence, concrete and vivid. Write in 書面語 Traditional Chinese.
-- recommended_recording: one specific performer, conductor, or ensemble whose interpretation is considered definitive or particularly interesting, with one sentence on why. Write in 書面語 Traditional Chinese.
-
-Return only valid JSON, no markdown.`,
+Rules — non-negotiable:
+- Every character must be Traditional Chinese. NEVER use Simplified Chinese (简体字).
+- Write in formal 書面語 as used in Hong Kong — NOT Cantonese vernacular (廣東話).
+- Translate faithfully — do not add, remove, or rewrite content. The Chinese must reflect exactly what the English says.
+- Preserve hedging language: if the English says "reportedly" or "many listeners hear", keep that nuance in Chinese.
+- Return only valid JSON with these exact fields: context, what_to_listen_for, recommended_recording. No markdown.`,
         cache_control: { type: "ephemeral" },
       },
     ],
     messages: [
       {
         role: "user",
-        content: `The piece is: ${piece_name} by ${composer} (${year}).`,
+        content: `Translate these three fields into Traditional Chinese:\n\ncontext: ${context}\n\nwhat_to_listen_for: ${what_to_listen_for}\n\nrecommended_recording: ${recommended_recording}`,
       },
     ],
   });
 
-  const text =
-    message.content[0].type === "text" ? message.content[0].text : "";
+  const text = message.content[0].type === "text" ? message.content[0].text : "";
   const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
   const result = JSON.parse(cleaned);
 
-  // Save to cache
   await fs.writeFile(cacheFile, JSON.stringify(result), "utf-8");
   return NextResponse.json(result);
 }
