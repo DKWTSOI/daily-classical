@@ -2,11 +2,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const context              = searchParams.get("context") ?? "";
-  const what_to_listen_for   = searchParams.get("what_to_listen_for") ?? "";
-  const recommended_recording = searchParams.get("recommended_recording") ?? "";
+export async function POST(req: NextRequest) {
+  const { context, what_to_listen_for, recommended_recording } = await req.json();
 
   const today = new Date().toISOString().split("T")[0];
   const cacheFile = `/tmp/piece-${today}-zh.json`;

@@ -49,12 +49,15 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
   async function fetchZh() {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
-        context: initial.context,
-        what_to_listen_for: initial.what_to_listen_for,
-        recommended_recording: initial.recommended_recording,
+      const res = await fetch("/api/piece", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          context: initial.context,
+          what_to_listen_for: initial.what_to_listen_for,
+          recommended_recording: initial.recommended_recording,
+        }),
       });
-      const res = await fetch(`/api/piece?${params}`);
       if (res.ok) setPiece({ ...initial, ...(await res.json()) });
     } finally { setLoading(false); }
   }
