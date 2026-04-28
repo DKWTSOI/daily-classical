@@ -1,20 +1,20 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   const { context, what_to_listen_for, recommended_recording } = await req.json();
 
   const today = new Date().toISOString().split("T")[0];
-  const cacheFile = `/tmp/piece-${today}-zh.json`;
 
-  // Return cached ZH response if it exists
-  try {
-    const cached = await fs.readFile(cacheFile, "utf-8");
-    return NextResponse.json(JSON.parse(cached));
-  } catch {
-    // Cache miss — translate
-  }
+  // Check Supabase cache
+  const { data: cached } = await supabase
+    .from("daily_pieces")
+    .select("data")
+    .eq("date", today)
+    .eq("language", "zh")
+    .single();
+  if (cached) return NextResponse.json(cached.data);
 
   const client = new Anthropic();
 
@@ -47,6 +47,6 @@ Rules — non-negotiable:
   const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
   const result = JSON.parse(cleaned);
 
-  await fs.writeFile(cacheFile, JSON.stringify(result), "utf-8");
+  await supabase.from("daily_pieces").insert({ date: today, language: "zh", data: result });
   return NextResponse.json(result);
 }

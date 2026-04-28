@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { cache } from "react";
-import { promises as fs } from "fs";
+import { supabase } from "@/lib/supabase";
 import PieceDisplay from "./PieceDisplay";
 
 export const revalidate = 3600;
@@ -27,15 +27,15 @@ function getEra(year: string | number): string {
 
 const getDailyPiece = cache(async (): Promise<DailyPiece> => {
   const today = new Date().toISOString().split("T")[0];
-  const cacheFile = `/tmp/piece-${today}.json`;
 
-  // Return cached response if it exists
-  try {
-    const cached = await fs.readFile(cacheFile, "utf-8");
-    return JSON.parse(cached);
-  } catch {
-    // Cache miss — call Claude
-  }
+  // Check Supabase cache
+  const { data: cached } = await supabase
+    .from("daily_pieces")
+    .select("data")
+    .eq("date", today)
+    .eq("language", "en")
+    .single();
+  if (cached) return cached.data as DailyPiece;
 
   const client = new Anthropic();
   const message = await client.messages.create({
@@ -78,19 +78,8 @@ Use today's date as a seed so the same piece shows all day but changes daily. Re
   const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
   const piece = JSON.parse(cleaned);
 
-  // Save to daily cache
-  await fs.writeFile(cacheFile, JSON.stringify(piece), "utf-8");
-
-  // Append to archive
-  const archiveFile = "/tmp/archive.json";
-  let archive: Array<{ date: string } & DailyPiece> = [];
-  try {
-    archive = JSON.parse(await fs.readFile(archiveFile, "utf-8"));
-  } catch { /* starts empty */ }
-  if (!archive.find((e) => e.date === today)) {
-    archive.unshift({ date: today, ...piece });
-    await fs.writeFile(archiveFile, JSON.stringify(archive), "utf-8");
-  }
+  // Save to Supabase
+  await supabase.from("daily_pieces").insert({ date: today, language: "en", data: piece });
 
   return piece;
 });
