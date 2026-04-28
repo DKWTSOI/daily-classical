@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>attuned.today — app icon / favicon</title>
+  <rect width="128" height="128" rx="22" fill="#2A2521"></rect>
+  <g transform="translate(64, 64)">
+    <circle r="36" fill="none" stroke="#F5EFE6" stroke-width="3"></circle>
+    <path d="M 0,-36 A 36,36 0 0 1 0,36 Z" fill="#F5EFE6"></path>
+  </g>
+</svg>
