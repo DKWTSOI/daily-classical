@@ -1,5 +1,5 @@
-import { promises as fs } from "fs";
 import ArchiveClient from "./ArchiveClient";
+import { supabase } from "@/lib/supabase";
 
 export const revalidate = 3600;
 
@@ -13,16 +13,17 @@ interface ArchiveEntry {
   composer: string;
   year: string | number;
   form: string;
-  difficulty: string;
 }
 
 async function getArchive(): Promise<ArchiveEntry[]> {
-  try {
-    const data = await fs.readFile("/tmp/archive.json", "utf-8");
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
+  const { data, error } = await supabase
+    .from("daily_pieces")
+    .select("date, data")
+    .eq("language", "en")
+    .order("date", { ascending: false });
+
+  if (error || !data) return [];
+  return data.map((row) => ({ date: row.date, ...row.data }));
 }
 
 export default async function ArchivePage() {
