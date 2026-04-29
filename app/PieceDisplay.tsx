@@ -194,8 +194,11 @@ export default function PieceDisplay({ initial, videoId, videoTitle, today, date
         <h2 style={{ ...tight, fontSize: 22, fontWeight: 500, letterSpacing: "-0.02em", margin: "0 0 16px" }}>
           {isZh ? "推薦錄音" : "Recommended recording"}
         </h2>
-        <p style={{ fontSize: 16, lineHeight: 1.7, color: INK, marginBottom: 40 }}>
+        <p style={{ fontSize: 16, lineHeight: 1.7, color: INK, marginBottom: 12 }}>
           {piece.recommended_recording}
+        </p>
+        <p style={{ ...mono, fontSize: 11, color: INK_M, letterSpacing: "0.02em", marginBottom: 40 }}>
+          {isZh ? "以上建議由 AI 生成，購買前請自行核實。" : "Suggestions are AI-generated. Always verify before purchasing."}
         </p>
 
       </main>

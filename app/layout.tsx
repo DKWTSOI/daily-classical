@@ -22,7 +22,22 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Attuned.today",
-  description: "A classical piece worth discovering, every day.",
+  description: "One piece of classical music, every day. AI-curated with bilingual context (EN/繁中).",
+  metadataBase: new URL("https://attuned.today"),
+  openGraph: {
+    title: "Attuned.today",
+    description: "One piece of classical music, every day. AI-curated with bilingual context (EN/繁中).",
+    url: "https://attuned.today",
+    siteName: "Attuned.today",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Attuned.today",
+    description: "One piece of classical music, every day. AI-curated with bilingual context (EN/繁中).",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
