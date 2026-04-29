@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   description: "One piece of classical music, every day. AI-curated with bilingual context (EN / 繁中).",
   metadataBase: new URL("https://attuned.today"),
   openGraph: {
-    title: "Attuned.today",
+    title: "Piece of the day — Attuned.today",
     description: "One piece of classical music, every day. AI-curated with bilingual context (EN / 繁中).",
     url: "https://attuned.today",
     siteName: "Attuned.today",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Attuned.today",
+    title: "Piece of the day — Attuned.today",
     description: "One piece of classical music, every day. AI-curated with bilingual context (EN / 繁中).",
     images: ["https://attuned.today/opengraph-image"],
   },
