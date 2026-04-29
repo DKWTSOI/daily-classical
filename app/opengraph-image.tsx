@@ -1,35 +1,38 @@
 import { ImageResponse } from "next/og";
-import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "edge";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 async function getTodaysPiece() {
-  const supabase = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!
-  );
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
+
   const today = new Date().toISOString().split("T")[0];
-  const { data } = await supabase
-    .from("daily_pieces")
-    .select("data")
-    .eq("date", today)
-    .eq("language", "en")
-    .single();
-  return data?.data ?? null;
+  const endpoint = `${url}/rest/v1/daily_pieces?date=eq.${today}&language=eq.en&select=data&limit=1`;
+
+  const res = await fetch(endpoint, {
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+  });
+  if (!res.ok) return null;
+  const rows = await res.json();
+  return rows?.[0]?.data ?? null;
 }
 
 export default async function OGImage() {
   const piece = await getTodaysPiece();
 
-  // Load Inter Tight font
   const fontRes = await fetch(
     "https://fonts.gstatic.com/s/intertight/v7/NGSnv5HMAFg6IuGlBNMjxJEL2VmU3NS7Z2mjDw-qXCRToK8APg.woff2"
   );
   const fontData = await fontRes.arrayBuffer();
 
-  const title   = piece?.piece_name ?? "Attuned.today";
+  const title    = piece?.piece_name ?? "Attuned.today";
   const composer = piece ? `${piece.composer} · ${piece.year}` : "";
 
   return new ImageResponse(

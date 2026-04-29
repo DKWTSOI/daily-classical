@@ -10,5 +10,11 @@ body {
 }
 
 button, input { font-family: inherit; }
+
+.prose-justify {
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
 ul { list-style: none; padding: 0; margin: 0; }
 figure { margin: 0; }

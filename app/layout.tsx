@@ -22,11 +22,11 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Attuned.today",
-  description: "One piece of classical music, every day. AI-curated with bilingual context (EN / 繁中).",
+  description: "One piece of classical music, every day. AI-powered with bilingual context (EN / 繁中).",
   metadataBase: new URL("https://attuned.today"),
   openGraph: {
-    title: "Piece of the day — Attuned.today",
-    description: "One piece of classical music, every day. AI-curated with bilingual context (EN / 繁中).",
+    title: "Piece of the day",
+    description: "One piece of classical music, every day. AI-powered with bilingual context (EN / 繁中).",
     url: "https://attuned.today",
     siteName: "Attuned.today",
     images: [{ url: "https://attuned.today/opengraph-image", width: 1200, height: 630 }],
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Piece of the day — Attuned.today",
-    description: "One piece of classical music, every day. AI-curated with bilingual context (EN / 繁中).",
+    title: "Piece of the day",
+    description: "One piece of classical music, every day. AI-powered with bilingual context (EN / 繁中).",
     images: ["https://attuned.today/opengraph-image"],
   },
 };
