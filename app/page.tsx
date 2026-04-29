@@ -128,18 +128,15 @@ async function searchYouTube(query: string): Promise<YouTubeResult | null> {
   };
 }
 
+// OG tags are static in layout.tsx — only override title/description here
 export async function generateMetadata() {
   try {
     const piece = await getDailyPiece();
     return {
-      title: `${piece.piece_name} — ${piece.composer}`,
-      description: piece.context,
+      title: `${piece.piece_name} — ${piece.composer} · Attuned.today`,
     };
   } catch {
-    return {
-      title: "Attuned.today",
-      description: "A classical piece worth discovering, every day.",
-    };
+    return {};
   }
 }
 
