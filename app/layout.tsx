@@ -29,14 +29,14 @@ export const metadata: Metadata = {
     description: "One piece of classical music, every day. AI-curated with bilingual context (EN / 繁中).",
     url: "https://attuned.today",
     siteName: "Attuned.today",
-    images: [{ url: "https://attuned.today/og-image.svg", width: 1200, height: 630 }],
+    images: [{ url: "https://attuned.today/opengraph-image", width: 1200, height: 630 }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Attuned.today",
     description: "One piece of classical music, every day. AI-curated with bilingual context (EN / 繁中).",
-    images: ["https://attuned.today/og-image.svg"],
+    images: ["https://attuned.today/opengraph-image"],
   },
 };
 
