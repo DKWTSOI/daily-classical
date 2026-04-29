@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#F5EFE6"></rect>
+  <g transform="translate(220, 260)">
+    
+    <path d="M 55,0 A 55,55 0 0 1 55,110 Z" fill="#B85A36"></path>
+    <circle cx="55" cy="55" r="55" fill="none" stroke="#2A2521" stroke-width="6"></circle>
+    
+    <text x="148" y="92" font-family="&#39;Inter Tight&#39;, system-ui, -apple-system, sans-serif" font-size="108" letter-spacing="-2.5" fill="#2A2521" font-weight="700">attuned<tspan fill="#B85A36">.</tspan>today</text>
+  </g>
+</svg>
