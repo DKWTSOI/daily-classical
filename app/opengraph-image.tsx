@@ -48,20 +48,15 @@ export default async function OGImage() {
       >
         {/* Brand */}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          {/* ◐ mark — drawn as two halves */}
-          <div style={{
-            width: 36, height: 36, borderRadius: "50%",
-            border: "3px solid #2A2521",
-            display: "flex", overflow: "hidden",
-          }}>
-            <div style={{ width: "50%", background: "#B85A36" }} />
-            <div style={{ width: "50%", background: "transparent" }} />
-          </div>
+          <svg width="36" height="36" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="16" fill="none" stroke="#2A2521" strokeWidth="3" />
+            <path d="M 18,2 A 16,16 0 0 1 18,34 Z" fill="#B85A36" />
+          </svg>
           <span style={{
             fontSize: 28, fontWeight: 700, color: "#2A2521",
             letterSpacing: "-0.5px",
           }}>
-            attuned<span style={{ color: "#B85A36" }}>.</span>today
+            attuned.today
           </span>
         </div>
 
