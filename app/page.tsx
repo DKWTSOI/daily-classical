@@ -111,7 +111,6 @@ async function searchYouTube(query: string): Promise<YouTubeResult | null> {
     part: "id,snippet",
     type: "video",
     maxResults: "1",
-    videoCategoryId: "10",
     videoEmbeddable: "true",
     order: "relevance",
     q: query,
