@@ -3,7 +3,7 @@ import { cache } from "react";
 import { supabase } from "@/lib/supabase";
 import PieceDisplay from "./PieceDisplay";
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 interface DailyPiece {
   piece_name: string;
