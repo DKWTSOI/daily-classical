@@ -74,6 +74,8 @@ Return a JSON object with these exact fields:
 - form: the musical form or genre in 1-3 words, e.g. "Piano sonata", "String quartet", "Nocturne", "Symphony", "Tone poem"
 - context: 2-3 sentences, warm and literary tone — not academic, not a Wikipedia summary. Always open with one intriguing hook sentence that makes someone want to press play. Follow these honesty rules strictly: (1) Never present invented or paraphrased quotes as direct quotes — if referencing what a composer said, write "reportedly" or "it is said that" rather than presenting it as verified. (2) Distinguish clearly between documented fact and critical interpretation — write "many listeners hear this as..." rather than "Brahms wrote this as...". Keep the literary quality — just be honest about what is fact versus feeling.
 - what_to_listen_for: one specific detail a listener can verify with their own ears — structural or emotional only: how a theme develops or transforms, a mood shift, a moment of tension or release, a surprising harmonic turn, or the arc of a passage. Never name a specific instrument unless you are certain it is prominent and unmistakable at that moment. One sentence, concrete and vivid.
+- Before returning, verify internal consistency: the piece_name, composer, year, era, and all text in context and what_to_listen_for must refer to exactly the same work. If you mention a symphony number, opus number, or catalogue number anywhere in the text, it must match piece_name exactly. Double-check this before outputting.
+
 - recommended_recording: recommend only internationally recognised performers whose association with this specific piece is well documented — e.g. Glenn Gould, Martha Argerich, Claudio Abbado, Carlos Kleiber, Herbert von Karajan, Yuja Wang, Daniel Barenboim, Wilhelm Furtwängler, Murray Perahia. Never invent a specific recording label, catalogue number, or year. If unsure about a specific recording, describe the performer's general interpretive approach instead of citing a specific release. One sentence.
 
 Use today's date as a seed so the same piece shows all day but changes daily. Return only valid JSON, no markdown.`,
@@ -161,7 +163,7 @@ export default async function Home() {
 
   const dateKey = new Date().toISOString().split("T")[0];
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  const yt = await searchYouTube(`${piece.composer} ${piece.piece_name} full performance classical`);
+  const yt = await searchYouTube(`"${piece.piece_name}" ${piece.composer} full performance`);
   const era = getEra(piece.era, piece.year);
 
   return (
