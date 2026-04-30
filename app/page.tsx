@@ -16,10 +16,18 @@ interface DailyPiece {
   recommended_recording: string;
 }
 
+interface YouTubeResult {
+  videoId: string;
+  title: string;
+}
+
+interface DailyData {
+  piece: DailyPiece;
+  yt: YouTubeResult | null;
+}
+
 function getEra(claudeEra: string | undefined, year: string | number): string {
-  // Trust Claude's era classification for contemporary/neoclassical
   if (claudeEra) return claudeEra;
-  // Fallback by year
   const y = Number(year);
   if (y < 1600) return "Renaissance";
   if (y < 1750) return "Baroque";
@@ -29,18 +37,8 @@ function getEra(claudeEra: string | undefined, year: string | number): string {
   return "Contemporary";
 }
 
-const getDailyPiece = cache(async (): Promise<DailyPiece> => {
-  const today = new Date().toISOString().split("T")[0];
-
-  // Check Supabase cache
-  const { data: cached } = await supabase
-    .from("daily_pieces")
-    .select("data")
-    .eq("date", today)
-    .eq("language", "en")
-    .single();
-  if (cached) return cached.data as DailyPiece;
-
+// ── Claude generation ──────────────────────────────────────────────────────
+async function generatePieceFromClaude(today: string): Promise<DailyPiece> {
   const client = new Anthropic();
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
@@ -75,37 +73,21 @@ Return a JSON object with these exact fields:
 - context: 2-3 sentences, warm and literary tone — not academic, not a Wikipedia summary. Always open with one intriguing hook sentence that makes someone want to press play. Follow these honesty rules strictly: (1) Never present invented or paraphrased quotes as direct quotes — if referencing what a composer said, write "reportedly" or "it is said that" rather than presenting it as verified. (2) Distinguish clearly between documented fact and critical interpretation — write "many listeners hear this as..." rather than "Brahms wrote this as...". Keep the literary quality — just be honest about what is fact versus feeling.
 - what_to_listen_for: one specific detail a listener can verify with their own ears — structural or emotional only: how a theme develops or transforms, a mood shift, a moment of tension or release, a surprising harmonic turn, or the arc of a passage. Never name a specific instrument unless you are certain it is prominent and unmistakable at that moment. One sentence, concrete and vivid.
 - Before returning, verify internal consistency: the piece_name, composer, year, era, and all text in context and what_to_listen_for must refer to exactly the same work. If you mention a symphony number, opus number, or catalogue number anywhere in the text, it must match piece_name exactly. Double-check this before outputting.
-
 - recommended_recording: recommend only internationally recognised performers whose association with this specific piece is well documented — e.g. Glenn Gould, Martha Argerich, Claudio Abbado, Carlos Kleiber, Herbert von Karajan, Yuja Wang, Daniel Barenboim, Wilhelm Furtwängler, Murray Perahia. Never invent a specific recording label, catalogue number, or year. If unsure about a specific recording, describe the performer's general interpretive approach instead of citing a specific release. One sentence.
 
 Use today's date as a seed so the same piece shows all day but changes daily. Return only valid JSON, no markdown.`,
         cache_control: { type: "ephemeral" },
       },
     ],
-    messages: [
-      {
-        role: "user",
-        content: `Today's date: ${today}.`,
-      },
-    ],
+    messages: [{ role: "user", content: `Today's date: ${today}.` }],
   });
 
-  const text =
-    message.content[0].type === "text" ? message.content[0].text : "";
+  const text = message.content[0].type === "text" ? message.content[0].text : "";
   const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-  const piece = JSON.parse(cleaned);
-
-  // Save to Supabase
-  await supabase.from("daily_pieces").insert({ date: today, language: "en", data: piece });
-
-  return piece;
-});
-
-interface YouTubeResult {
-  videoId: string;
-  title: string;
+  return JSON.parse(cleaned);
 }
 
+// ── YouTube search ─────────────────────────────────────────────────────────
 async function searchYouTube(query: string): Promise<YouTubeResult | null> {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) return null;
@@ -118,40 +100,93 @@ async function searchYouTube(query: string): Promise<YouTubeResult | null> {
     q: query,
     key: apiKey,
   });
-  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`, { next: { revalidate: 3600 } });
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`, {
+    next: { revalidate: 3600 },
+  });
   if (!res.ok) return null;
   const data = await res.json();
   const item = data.items?.[0];
   if (!item) return null;
-  return {
-    videoId: item.id.videoId,
-    title: item.snippet.title,
-  };
+  return { videoId: item.id.videoId, title: item.snippet.title };
 }
 
-// OG tags are static in layout.tsx — only override title/description here
+// ── Match check ────────────────────────────────────────────────────────────
+// A YouTube result is "good" if the video title contains the composer's last name.
+// This catches the wrong-symphony problem (Nielsen Sym 1 vs Sym 7).
+function isGoodMatch(piece: DailyPiece, videoTitle: string): boolean {
+  const vtLower = videoTitle.toLowerCase();
+  // Composer last name must appear in video title
+  const lastName = piece.composer.trim().split(/\s+/).pop()?.toLowerCase() ?? "";
+  return !!lastName && vtLower.includes(lastName);
+}
+
+// ── Main data fetch with retry loop ───────────────────────────────────────
+const getDailyData = cache(async (): Promise<DailyData> => {
+  const today = new Date().toISOString().split("T")[0];
+
+  // Return cached piece if available (already verified on a previous run)
+  const { data: cached } = await supabase
+    .from("daily_pieces")
+    .select("data")
+    .eq("date", today)
+    .eq("language", "en")
+    .single();
+
+  if (cached) {
+    const piece = cached.data as DailyPiece;
+    const yt = await searchYouTube(`"${piece.piece_name}" ${piece.composer} full performance`);
+    return { piece, yt };
+  }
+
+  // Retry loop — up to 3 attempts to find a piece with a matching YouTube video
+  const MAX_ATTEMPTS = 3;
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    const piece = await generatePieceFromClaude(today);
+    const yt = await searchYouTube(`"${piece.piece_name}" ${piece.composer} full performance`);
+
+    const matched = !yt || isGoodMatch(piece, yt.title);
+    if (matched) {
+      // Save winner to Supabase and return
+      await supabase.from("daily_pieces").upsert(
+        { date: today, language: "en", data: piece },
+        { onConflict: "date,language" }
+      );
+      return { piece, yt };
+    }
+    // Mismatch — loop and try a different piece
+  }
+
+  // Exhausted retries — save whatever Claude last gave us and show without video
+  const fallback = await generatePieceFromClaude(today);
+  await supabase.from("daily_pieces").upsert(
+    { date: today, language: "en", data: fallback },
+    { onConflict: "date,language" }
+  );
+  return { piece: fallback, yt: null };
+});
+
+// ── Metadata ───────────────────────────────────────────────────────────────
 export async function generateMetadata() {
   try {
-    const piece = await getDailyPiece();
-    return {
-      title: `${piece.piece_name} — ${piece.composer} · Attuned.today`,
-    };
+    const { piece } = await getDailyData();
+    return { title: `${piece.piece_name} — ${piece.composer} · Attuned.today` };
   } catch {
     return {};
   }
 }
 
+// ── Page ───────────────────────────────────────────────────────────────────
 export default async function Home() {
-  let piece: DailyPiece | null = null;
+  let data: DailyData | null = null;
   let error: string | null = null;
 
   try {
-    piece = await getDailyPiece();
+    data = await getDailyData();
   } catch (e) {
     error = e instanceof Error ? e.message : String(e);
   }
 
-  if (error || !piece) {
+  if (error || !data) {
     return (
       <main className="min-h-screen flex items-center justify-center px-6">
         <p className="text-sm font-mono max-w-md break-all" style={{ color: "#b5a48a" }}>
@@ -161,9 +196,9 @@ export default async function Home() {
     );
   }
 
+  const { piece, yt } = data;
   const dateKey = new Date().toISOString().split("T")[0];
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  const yt = await searchYouTube(`"${piece.piece_name}" ${piece.composer} full performance`);
   const era = getEra(piece.era, piece.year);
 
   return (
