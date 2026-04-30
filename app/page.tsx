@@ -3,7 +3,7 @@ import { cache } from "react";
 import { supabase } from "@/lib/supabase";
 import PieceDisplay from "./PieceDisplay";
 
-export const revalidate = 0;
+export const revalidate = 3600;
 
 interface DailyPiece {
   piece_name: string;
@@ -65,7 +65,7 @@ Era classification guide for the 'era' field:
 - Contemporary: composers like Pärt, Glass, Adams, Ligeti, Schnittke, Gubaidulina — post-1945 art music
 
 Return a JSON object with these exact fields:
-- piece_name: name of the piece (always in original language)
+- piece_name: name of the piece in English. If the piece has a widely recognised English title, use that. If it is universally known by its original-language title (e.g. "Das Lied von der Erde", "La Mer"), keep the original. Otherwise translate or transliterate to English.
 - composer: composer's full name (always in original language)
 - year: year of composition (number)
 - era: one of exactly: "Renaissance", "Baroque", "Classical", "Romantic", "Late Romantic · Modern", "Neoclassical", "Contemporary"
@@ -147,10 +147,7 @@ const getDailyData = cache(async (): Promise<DailyData> => {
     const matched = !yt || isGoodMatch(piece, yt.title);
     if (matched) {
       // Save winner to Supabase and return
-      await supabase.from("daily_pieces").upsert(
-        { date: today, language: "en", data: piece },
-        { onConflict: "date,language" }
-      );
+      await supabase.from("daily_pieces").insert({ date: today, language: "en", data: piece });
       return { piece, yt };
     }
     // Mismatch — loop and try a different piece
