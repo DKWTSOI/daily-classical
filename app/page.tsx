@@ -53,7 +53,7 @@ const getDailyPiece = cache(async (): Promise<DailyPiece> => {
 Strict rules:
 - Never suggest overplayed classics: no Beethoven's 5th Symphony or Moonlight Sonata, no Pachelbel's Canon in D, no Vivaldi's Four Seasons, no Beethoven's Für Elise, no Debussy's Clair de Lune.
 - Prioritise lesser-known, surprising pieces a curious listener wouldn't have heard.
-- Vary the form broadly across days: piano solo, symphony, string quartet, song cycle, piano concerto, violin concerto, choral work, opera aria, chamber music, solo violin, cello sonata, and more. Do NOT default to piano solo — actively rotate across very different forms and ensembles.
+- Vary the form strictly. The rotation must cycle through: piano solo, solo violin, solo cello, flute sonata, French horn, oboe concerto, string quartet, piano trio, song cycle, opera aria, choral work, piano concerto, violin concerto, cello concerto, chamber music — and only occasionally a symphony or orchestral work. Never suggest a symphony more than once every 7 days. Today's date is the seed — use it to pick a form that has not appeared recently.
 - Occasionally include pieces stylistically related to: Mozart Fantasia K.397, Beethoven Pathétique Op.13, Satie Gymnopédies, Ravel, Debussy Rêverie — same mood or era, but unexpected choices and varied instrumentation.
 - Roughly 1 in 5 pieces should be from contemporary or modern composers, including: Arvo Pärt, Philip Glass, John Adams, Max Richter, Ólafur Arnalds, Ludovico Einaudi, György Ligeti, Alfred Schnittke, Sofia Gubaidulina, Nils Frahm. These provide accessible entry points and variety alongside traditional repertoire.
 
@@ -162,7 +162,7 @@ export default async function Home() {
 
   const dateKey = new Date().toISOString().split("T")[0];
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  const yt = await searchYouTube(`${piece.piece_name} ${piece.composer} classical music full performance`);
+  const yt = await searchYouTube(`${piece.composer} ${piece.piece_name} full performance classical`);
   const era = getEra(piece.era, piece.year);
 
   return (
