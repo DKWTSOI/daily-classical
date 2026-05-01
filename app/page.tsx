@@ -98,7 +98,14 @@ Use today's date as a seed so the same piece shows all day but changes daily. Re
 
   const text = message.content[0].type === "text" ? message.content[0].text : "";
   const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-  return JSON.parse(cleaned);
+  const piece = JSON.parse(cleaned);
+  // Strip em-dashes from all text fields, replace with a comma or colon depending on context
+  for (const key of ["context", "what_to_listen_for", "recommended_recording"] as const) {
+    if (typeof piece[key] === "string") {
+      piece[key] = piece[key].replace(/ — /g, ", ").replace(/—/g, ", ");
+    }
+  }
+  return piece;
 }
 
 // ── YouTube search ─────────────────────────────────────────────────────────
@@ -148,7 +155,7 @@ const getDailyData = cache(async (): Promise<DailyData> => {
 
   if (cached) {
     const piece = cached.data as DailyPiece;
-    const yt = await searchYouTube(`"${piece.piece_name}" ${piece.composer} full performance`);
+    const yt = await searchYouTube(`"${piece.piece_name}" ${piece.composer} complete full`);
     return { piece, yt };
   }
 
@@ -156,7 +163,7 @@ const getDailyData = cache(async (): Promise<DailyData> => {
   const MAX_ATTEMPTS = 3;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const piece = await generatePieceFromClaude(today);
-    const yt = await searchYouTube(`"${piece.piece_name}" ${piece.composer} full performance`);
+    const yt = await searchYouTube(`"${piece.piece_name}" ${piece.composer} complete full`);
 
     const matched = !yt || isGoodMatch(piece, yt.title);
     if (matched) {
