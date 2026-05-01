@@ -38,7 +38,21 @@ function getEra(claudeEra: string | undefined, year: string | number): string {
 }
 
 // ── Claude generation ──────────────────────────────────────────────────────
+async function getRecentPieces(): Promise<string> {
+  const { data } = await supabase
+    .from("daily_pieces")
+    .select("data")
+    .eq("language", "en")
+    .order("date", { ascending: false })
+    .limit(7);
+  if (!data || data.length === 0) return "";
+  return data
+    .map((r) => `- ${r.data.piece_name} by ${r.data.composer}`)
+    .join("\n");
+}
+
 async function generatePieceFromClaude(today: string): Promise<DailyPiece> {
+  const recentPieces = await getRecentPieces();
   const client = new Anthropic();
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
@@ -79,7 +93,7 @@ Use today's date as a seed so the same piece shows all day but changes daily. Re
         cache_control: { type: "ephemeral" },
       },
     ],
-    messages: [{ role: "user", content: `Today's date: ${today}.` }],
+    messages: [{ role: "user", content: `Today's date: ${today}.${recentPieces ? `\n\nDo NOT suggest any of these recently played pieces:\n${recentPieces}` : ""}` }],
   });
 
   const text = message.content[0].type === "text" ? message.content[0].text : "";
