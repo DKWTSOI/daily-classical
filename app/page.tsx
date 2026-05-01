@@ -56,7 +56,7 @@ async function generatePieceFromClaude(today: string): Promise<DailyPiece> {
   const client = new Anthropic();
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 1024,
+    max_tokens: 1536,
     system: [
       {
         type: "text",
@@ -84,8 +84,8 @@ Return a JSON object with these exact fields:
 - year: year of composition (number)
 - era: one of exactly: "Renaissance", "Baroque", "Classical", "Romantic", "Late Romantic · Modern", "Neoclassical", "Contemporary"
 - form: the musical form or genre in 1-3 words, e.g. "Piano sonata", "String quartet", "Nocturne", "Symphony", "Tone poem"
-- context: 2-3 sentences, warm and literary tone — not academic, not a Wikipedia summary. Always open with one intriguing hook sentence that makes someone want to press play. Follow these honesty rules strictly: (1) Never present invented or paraphrased quotes as direct quotes — if referencing what a composer said, write "reportedly" or "it is said that" rather than presenting it as verified. (2) Distinguish clearly between documented fact and critical interpretation — write "many listeners hear this as..." rather than "Brahms wrote this as...". Keep the literary quality — just be honest about what is fact versus feeling.
-- what_to_listen_for: one specific detail a listener can verify with their own ears — structural or emotional only: how a theme develops or transforms, a mood shift, a moment of tension or release, a surprising harmonic turn, or the arc of a passage. Never name a specific instrument unless you are certain it is prominent and unmistakable at that moment. One sentence, concrete and vivid.
+- context: 2-3 sentences. Warm and literary tone, not academic, not a Wikipedia summary. Open with one intriguing hook sentence that makes someone want to press play. Honesty rules: (1) Never present invented or paraphrased quotes as direct quotes — use "reportedly" or "it is said that". (2) Distinguish fact from interpretation — write "many listeners hear this as..." not "the composer intended...". Do NOT use em-dashes (—) anywhere in this field. Do not reference music-theory notation or note-name codes (like "D–S–C–H") without immediately explaining what they mean in plain language accessible to a non-musician.
+- what_to_listen_for: 2-3 sentences. Go deeper than a single observation. Tailor the guidance to the form: for a concerto or symphony, describe a specific solo or orchestral moment and what makes it striking — the texture, the emotional shift, how a theme is passed between parts. For a solo piece, describe the atmosphere and intention the performer is creating, how the mood evolves, or what the silences or dynamics are doing. Be concrete and sensory. Do not use em-dashes (—). Do not name a specific instrument unless it is unmistakably prominent at that exact moment.
 - Before returning, verify internal consistency: the piece_name, composer, year, era, and all text in context and what_to_listen_for must refer to exactly the same work. If you mention a symphony number, opus number, or catalogue number anywhere in the text, it must match piece_name exactly. Double-check this before outputting.
 - recommended_recording: recommend only internationally recognised performers whose association with this specific piece is well documented — e.g. Glenn Gould, Martha Argerich, Claudio Abbado, Carlos Kleiber, Herbert von Karajan, Yuja Wang, Daniel Barenboim, Wilhelm Furtwängler, Murray Perahia. Never invent a specific recording label, catalogue number, or year. If unsure about a specific recording, describe the performer's general interpretive approach instead of citing a specific release. One sentence.
 
